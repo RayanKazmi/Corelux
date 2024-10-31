@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Corelux</title>
+  <title>Corelux Credits</title>
   <style>
     .navbar {
       background-color: black;
       overflow: hidden;
+      border:1px solid #ccc;
+      border-width:1px 0;
+      top: 0;
     }
     
     .navbar a {
@@ -19,16 +22,45 @@
     .navbar a:hover {
       background-color: #ddd;
       color: black;
+      border:1px solid #ccc;
+      border-width:1px 0;
     }
     
     body {
       margin: 0;
       font-family: Arial, sans-serif;
+      background-color: black;
     }
     
     .content {
       padding: 20px;
+      background-color: black;
+      text-align: center;
+      color: white;
     }
+    
+    .header-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+    }
+    .header-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 4rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-align: center;
+    }
+    .header-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            overflow: hidden;
+        }
   </style>
 </head>
 <body>
@@ -38,10 +70,16 @@
     <a href="" target="_blank">Ads</a>
     <a href="https://corelux-unblocking.com/Credits" target="_blank">Credits</a>
   </div>
+  <div class="header-container">
+        <img src="image.jpg" alt="Header Image" class="header-image">
+        <div class="header-text">
+            Your Bold Header Text
+        </div>
+    </div>
 
   <div class="content">
-    <h1>Corelux</h1>
-    <p>This is the new Corelux site, it is being setup!</p>
+    <h1>The Corelux HTML Crew</h1>
+    <p>Being setup</p>
     <p>Thank you for using Corelux!</p>
   </div>
 </body>
