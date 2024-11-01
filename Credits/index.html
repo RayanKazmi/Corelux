@@ -6,14 +6,17 @@
     .credits-section {
       padding: 40px 20px;
       background-color: #f5f5f5;
-      text-align: center;
+    }
+
+    .credit-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-gap: 30px;
     }
 
     .credit-item {
       display: flex;
       align-items: center;
-      margin-bottom: 30px;
-      text-align: center;
     }
 
     .credit-image {
@@ -21,20 +24,17 @@
       height: 80px;
       border-radius: 50%;
       margin-right: 20px;
-      text-align: center;
     }
 
     .credit-info h3 {
       margin-top: 0;
       margin-bottom: 5px;
       font-size: 18px;
-      text-align: center;
     }
 
     .credit-info p {
       margin: 5px 0;
       font-size: 14px;
-      text-align: center;
     }
     .navbar {
       background-color: black;
@@ -116,50 +116,51 @@
     <p>Thank you for using Corelux!</p>
   </div>
 </body>
-  <section class="credits-section">
-  <h2>Credits</h2>
-  
-  <article class="credit-item">
-    <img src="wiredpepsi.png" alt="WiredPepsi" class="credit-image">
-    <div class="credit-info">
-      <h3>WiredPepsi</h3>
-      <p>Owner and founder of the website</p>
-      <p>Discord: WiredPepsi</p>
-      <p>YouTube, SoundCloud</p>
-    </div>
-  </article>
-
-  <article class="credit-item">
-    <img src="rayenkazmi.png" alt="RayenKazmi" class="credit-image">
-    <div class="credit-info">
-      <h3>RayenKazmi</h3>
-      <p>Owner and co-founder of the website</p>
-      <p>Discord: rayenkazmi#3058</p>
-    </div>
-  </article>
-
-  <article class="credit-item">
-    <img src="swiftydev.png" alt="SwiftyDev" class="credit-image">
-    <div class="credit-info">
-      <h3>SwiftyDev</h3>
-      <p>Owner And Head Developers</p>
-      <p>Discord: swifty#9883</p>
-      <p>Soundcloud</p>
-    </div>
-  </article>
-
-  <article class="credit-item">
-    <img src="sleepless_moon.png" alt="Sleepless_Moon" class="credit-image">
-    <div class="credit-info">
-      <h3>Sleepless_Moon</h3>
-      <p>Head of staff</p>
-      <p>Discord: Sleepless_Moon</p>
-      <p>LGBTQ+ Rights</p>
-      <p>Just your casual Bunny Snuggle Giver Fanatic</p>
-      <p>Total God of PMs changing</p>
-      <p>I've hired a Drama Dean to scare all you</p>
-    </div>
-  </article>
-</section>
 </html>
+<section class="credits-section">
+  <h2>Credits</h2>
 
+  <div class="credit-grid">
+    <article class="credit-item">
+      <img src="wiredpepsi.png" alt="WiredPepsi" class="credit-image">
+      <div class="credit-info">
+        <h3>WiredPepsi</h3>
+        <p>Owner and founder of the website</p>
+        <p>Discord: WiredPepsi</p>
+        <p>YouTube, SoundCloud</p>
+      </div>
+    </article>
+
+    <article class="credit-item">
+      <img src="rayenkazmi.png" alt="RayenKazmi" class="credit-image">
+      <div class="credit-info">
+        <h3>RayenKazmi</h3>
+        <p>Owner and co-founder of the website</p>
+        <p>Discord: rayenkazmi#3058</p>
+      </div>
+    </article>
+
+    <article class="credit-item">
+      <img src="swiftydev.png" alt="SwiftyDev" class="credit-image">
+      <div class="credit-info">
+        <h3>SwiftyDev</h3>
+        <p>Owner And Head Developers</p>
+        <p>Discord: swifty#9883</p>
+        <p>Soundcloud</p>
+      </div>
+    </article>
+
+    <article class="credit-item">
+      <img src="sleepless_moon.png" alt="Sleepless_Moon" class="credit-image">
+      <div class="credit-info">
+        <h3>Sleepless_Moon</h3>
+        <p>Head of staff</p>
+        <p>Discord: Sleepless_Moon</p>
+        <p>LGBTQ+ Rights</p>
+        <p>Just your casual Bunny Snuggle Giver Fanatic</p>
+        <p>Total God of PMs changing</p>
+        <p>I've hired a Drama Dean to scare all you</p>
+      </div>
+    </article>
+  </div>
+</section>
