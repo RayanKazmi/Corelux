@@ -9,43 +9,45 @@
       color: white;
     }
 
+    .credits-title {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
     .credit-grid {
-      background-color: black;
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      grid-gap: 30px;
-      color: white;
+      grid-gap: 40px;
     }
 
     .credit-item {
-      background-color: black;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      color: white;
+      text-align: center;
+    }
+
+    .credit-image-container {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-bottom: 20px;
     }
 
     .credit-image {
-      background-color: black;
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      margin-right: 20px;
-      color: white;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
-    .credit-info h3 {
-      background-color: black;
+  .credit-name {
       margin-top: 0;
-      margin-bottom: 5px;
-      font-size: 18px;
-      color: white;
+      margin-bottom: 10px;
     }
 
     .credit-info p {
-      background-color: black;
       margin: 5px 0;
-      font-size: 14px;
-      color: white;
     }
     
     .navbar {
@@ -130,42 +132,46 @@
 </body>
 </html>
 <section class="credits-section">
-  <h2>Credits</h2>
-
+  <h2 class="credits-title">Credits</h2>
   <div class="credit-grid">
-    <article class="credit-item">
-      <img src="wiredpepsi.png" alt="WiredPepsi" class="credit-image">
+    <div class="credit-item">
+      <div class="credit-image-container">
+        <img src="wiredpepsi.png" alt="WiredPepsi" class="credit-image">
+      </div>
       <div class="credit-info">
-        <h3>WiredPepsi</h3>
+        <h3 class="credit-name">WiredPepsi</h3>
         <p>Owner and founder of the website</p>
         <p>Discord: WiredPepsi</p>
         <p>YouTube, SoundCloud</p>
       </div>
-    </article>
-
-    <article class="credit-item">
-      <img src="rayenkazmi.png" alt="RayenKazmi" class="credit-image">
+    </div>
+    <div class="credit-item">
+      <div class="credit-image-container">
+        <img src="rayenkazmi.png" alt="RayenKazmi" class="credit-image">
+      </div>
       <div class="credit-info">
-        <h3>RayenKazmi</h3>
+        <h3 class="credit-name">RayenKazmi</h3>
         <p>Owner and co-founder of the website</p>
         <p>Discord: rayenkazmi#3058</p>
       </div>
-    </article>
-
-    <article class="credit-item">
-      <img src="swiftydev.png" alt="SwiftyDev" class="credit-image">
+    </div>
+    <div class="credit-item">
+      <div class="credit-image-container">
+        <img src="swiftydev.png" alt="SwiftyDev" class="credit-image">
+      </div>
       <div class="credit-info">
-        <h3>SwiftyDev</h3>
+        <h3 class="credit-name">SwiftyDev</h3>
         <p>Owner And Head Developers</p>
         <p>Discord: swifty#9883</p>
         <p>Soundcloud</p>
       </div>
-    </article>
-
-    <article class="credit-item">
-      <img src="sleepless_moon.png" alt="Sleepless_Moon" class="credit-image">
+    </div>
+    <div class="credit-item">
+      <div class="credit-image-container">
+        <img src="sleepless_moon.png" alt="Sleepless_Moon" class="credit-image">
+      </div>
       <div class="credit-info">
-        <h3>Sleepless_Moon</h3>
+        <h3 class="credit-name">Sleepless_Moon</h3>
         <p>Head of staff</p>
         <p>Discord: Sleepless_Moon</p>
         <p>LGBTQ+ Rights</p>
@@ -173,6 +179,6 @@
         <p>Total God of PMs changing</p>
         <p>I've hired a Drama Dean to scare all you</p>
       </div>
-    </article>
+    </div>
   </div>
 </section>
