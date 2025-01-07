@@ -7,6 +7,7 @@ body {
   overflow: hidden;
   margin: 0;
   background-color: #f0f0f0;
+  cursor: default; /* Default cursor */
 }
 
 #ball {
@@ -15,6 +16,10 @@ body {
   height: 50px;
   border-radius: 50%;
   background-color: blue;
+  cursor: grab; /* Change cursor on hover */
+}
+#ball.dragging {
+    cursor: grabbing; /* Change cursor when dragging*/
 }
 </style>
 </head>
@@ -28,74 +33,83 @@ let x = window.innerWidth / 2;
 let y = window.innerHeight / 2;
 let dx = 0;
 let dy = 0;
-let lastX = x;
-let lastY = y;
+let isDragging = false;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
+let lastMouseX = 0;
+let lastMouseY = 0;
 const friction = 0.98;
 const gravity = 0.2;
-let windowMoved = false;
 
 function updateBallPosition() {
-    if (windowMoved) {
-        // Recalculate velocity based on the window movement
-        dx = (x - lastX) * 5; // Increased sensitivity
-        dy = (y - lastY) * 5; // Increased sensitivity
-        windowMoved = false; // Reset the flag
-    } else {
-        // Apply gravity
+    if (!isDragging) {
         dy += gravity;
-
-        // Apply friction
         dx *= friction;
         dy *= friction;
+
+        x += dx;
+        y += dy;
+
+        if (x + 50 > window.innerWidth || x < 0) {
+            dx = -dx;
+            x = x + (x + 50 > window.innerWidth ? -((x+50) - window.innerWidth) : -x);
+        }
+        if (y + 50 > window.innerHeight || y < 0) {
+            dy = -dy;
+            y = y + (y + 50 > window.innerHeight ? -((y+50) - window.innerHeight) : -y);
+        }
+
+        ball.style.left = x + 'px';
+        ball.style.top = y + 'px';
     }
-
-    x += dx;
-    y += dy;
-
-    lastX = x;
-    lastY = y;
-
-    // Bounce off walls
-    if (x + 50 > window.innerWidth || x < 0) {
-        dx = -dx;
-        x = x + (x + 50 > window.innerWidth ? -((x+50) - window.innerWidth) : -x);
-    }
-    if (y + 50 > window.innerHeight || y < 0) {
-        dy = -dy;
-        y = y + (y + 50 > window.innerHeight ? -((y+50) - window.innerHeight) : -y);
-    }
-
-    ball.style.left = x + 'px';
-    ball.style.top = y + 'px';
 
     requestAnimationFrame(updateBallPosition);
 }
 
-// Initial position
-ball.style.left = x + 'px';
-ball.style.top = y + 'px';
-
-// Window resize and move event listener
-window.addEventListener('resize', () => {
-    windowMoved = true;
-    // Keep ball within bounds after resize
-    x = Math.min(Math.max(x, 0), window.innerWidth - 50);
-    y = Math.min(Math.max(y, 0), window.innerHeight - 50);
-
+ball.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    ball.classList.add('dragging');
+    dragOffsetX = e.clientX - x;
+    dragOffsetY = e.clientY - y;
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
 });
 
-// A less reliable way to detect window move, but it helps
-let lastWindowX = window.screenX;
-let lastWindowY = window.screenY;
-setInterval(() => {
-    if (lastWindowX !== window.screenX || lastWindowY !== window.screenY) {
-        windowMoved = true;
-        lastWindowX = window.screenX;
-        lastWindowY = window.screenY;
-    }
-}, 50); // Check every 50ms
+window.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+        x = e.clientX - dragOffsetX;
+        y = e.clientY - dragOffsetY;
 
+        ball.style.left = x + 'px';
+        ball.style.top = y + 'px';
+    }
+});
+
+window.addEventListener('mouseup', (e) => {
+    if (isDragging) {
+        isDragging = false;
+        ball.classList.remove('dragging');
+        dx = e.clientX - lastMouseX;
+        dy = e.clientY - lastMouseY;
+        lastMouseX = 0;
+        lastMouseY = 0;
+    }
+});
+
+//Prevent dragging outside of window
+window.addEventListener("blur", () => {
+    if (isDragging) {
+        isDragging = false;
+        ball.classList.remove('dragging');
+        lastMouseX = 0;
+        lastMouseY = 0;
+    }
+})
+
+ball.style.left = x + 'px';
+ball.style.top = y + 'px';
 updateBallPosition();
+
 </script>
 
 </body>
