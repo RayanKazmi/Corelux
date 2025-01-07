@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Bouncing Ball</title>
+<style>
+body {
+  overflow: hidden;
+  margin: 0;
+  background-color: #f0f0f0;
+}
+
+#ball {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: blue;
+}
+</style>
+</head>
+<body>
+
+<div id="ball"></div>
+
+<script>
+const ball = document.getElementById('ball');
+let x = window.innerWidth / 2;
+let y = window.innerHeight / 2;
+let dx = 0;
+let dy = 0;
+let lastX = x;
+let lastY = y;
+const friction = 0.98;
+const gravity = 0.2;
+let windowMoved = false;
+
+function updateBallPosition() {
+    if (windowMoved) {
+        // Recalculate velocity based on the window movement
+        dx = (x - lastX) * 5; // Increased sensitivity
+        dy = (y - lastY) * 5; // Increased sensitivity
+        windowMoved = false; // Reset the flag
+    } else {
+        // Apply gravity
+        dy += gravity;
+
+        // Apply friction
+        dx *= friction;
+        dy *= friction;
+    }
+
+    x += dx;
+    y += dy;
+
+    lastX = x;
+    lastY = y;
+
+    // Bounce off walls
+    if (x + 50 > window.innerWidth || x < 0) {
+        dx = -dx;
+        x = x + (x + 50 > window.innerWidth ? -((x+50) - window.innerWidth) : -x);
+    }
+    if (y + 50 > window.innerHeight || y < 0) {
+        dy = -dy;
+        y = y + (y + 50 > window.innerHeight ? -((y+50) - window.innerHeight) : -y);
+    }
+
+    ball.style.left = x + 'px';
+    ball.style.top = y + 'px';
+
+    requestAnimationFrame(updateBallPosition);
+}
+
+// Initial position
+ball.style.left = x + 'px';
+ball.style.top = y + 'px';
+
+// Window resize and move event listener
+window.addEventListener('resize', () => {
+    windowMoved = true;
+    // Keep ball within bounds after resize
+    x = Math.min(Math.max(x, 0), window.innerWidth - 50);
+    y = Math.min(Math.max(y, 0), window.innerHeight - 50);
+
+});
+
+// A less reliable way to detect window move, but it helps
+let lastWindowX = window.screenX;
+let lastWindowY = window.screenY;
+setInterval(() => {
+    if (lastWindowX !== window.screenX || lastWindowY !== window.screenY) {
+        windowMoved = true;
+        lastWindowX = window.screenX;
+        lastWindowY = window.screenY;
+    }
+}, 50); // Check every 50ms
+
+updateBallPosition();
+</script>
+
+</body>
+</html>
