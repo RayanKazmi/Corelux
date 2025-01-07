@@ -73,21 +73,20 @@
   </style>
 </head>
 <body>
-  <div class="navbar">
-    <?php
-    $pagesPath = "../../pages.txt";  // Goes up through navbar and test folders to reach main
-    $file = fopen($pagesPath, "r");
-    if ($file) {
-        while(($line = fgets($file)) !== false) {
-            list($name, $url) = explode("|", trim($line));
-            echo "<a href=\"$url\">$name</a>\n";
-        }
-        fclose($file);
-    } else {
-        echo "<!-- Error: Could not find pages.txt at $pagesPath -->";
-    }
-    ?>
-  </div>
+<div class="navbar" id="nav"></div>
+  <script>
+    fetch('../../pages.txt')
+      .then(response => response.text())
+      .then(data => {
+        const links = data.split('\n');
+        links.forEach(line => {
+          if(line.trim()) {
+            const [name, url] = line.split('|');
+            document.getElementById('nav').innerHTML += `<a href="${url}">${name}</a>`;
+          }
+        });
+      });
+  </script>
   <div class="header-container">
         <img src="image.jpg" alt="Header Image" class="header-image">
         <div class="header-text">
