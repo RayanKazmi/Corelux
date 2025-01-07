@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-Y4LDHEQ6SL"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-Y4LDHEQ6SL');
+</script>
+  <title>Error 404 (Not Found)!!1</title>
+  <style>
+    .navbar {
+      background-color: black;
+      overflow: hidden;
+      border:1px solid #ccc;
+      border-width:1px 0;
+      top: 0;
+    }
+    
+    .navbar a {
+      float: left;
+      color: white;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+    }
+    
+    .navbar a:hover {
+      background-color: #ddd;
+      color: black;
+      border:1px solid #ccc;
+      border-width:1px 0;
+    }
+    
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: black;
+    }
+    
+    .content {
+      padding: 20px;
+      background-color: black;
+      text-align: center;
+      color: white;
+    }
+    
+    .header-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+    }
+    .header-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 6rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-align: center;
+    }
+    .header-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            overflow: hidden;
+        }
+  </style>
+</head>
+<body>
+<div class="navbar" id="nav"></div>
+  <script>
+    fetch('pages.txt')
+      .then(response => response.text())
+      .then(data => {
+        const links = data.split('\n');
+        links.forEach(line => {
+          if(line.trim()) {
+            const [name, url] = line.split('|');
+            document.getElementById('nav').innerHTML += `<a href="${url}">${name}</a>`;
+          }
+        });
+      });
+  </script>
+  <div class="header-container">
+        <div class="header-text">
+            Under development
+        </div>
+    </div>
+
+  <div class="content">
+    <p>The stupid devs didnt finish this page yet</p>
+    <p>Go check out something else in the mean time!</p>
+  </div>
+</body>
+</html>
