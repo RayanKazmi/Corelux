@@ -39,6 +39,13 @@
       margin: 0;
       font-family: Arial, sans-serif;
       background-color: black;
+      overflow: hidden;
+    }
+
+    .dot {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
     }
     
     .content {
@@ -73,6 +80,44 @@
   </style>
 </head>
 <body>
+  <script>
+    class Dot {
+      constructor() {
+        this.element = document.createElement('div');
+        this.element.className = 'dot';
+        this.x = Math.random() * window.innerWidth;
+        this.y = Math.random() * window.innerHeight;
+        this.size = Math.random() * 8 + 2;
+        this.opacity = Math.random() * 0.5 + 0.2;
+        this.speedX = (Math.random() - 0.5) * 0.5;
+        this.speedY = (Math.random() - 0.5) * 0.5;
+        
+        this.element.style.width = this.size + 'px';
+        this.element.style.height = this.size + 'px';
+        this.element.style.opacity = this.opacity;
+        document.body.appendChild(this.element);
+      }
+
+      move() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        if (this.x < 0 || this.x > window.innerWidth) this.speedX *= -1;
+        if (this.y < 0 || this.y > window.innerHeight) this.speedY *= -1;
+
+        this.element.style.transform = `translate(${this.x}px, ${this.y}px)`;
+      }
+    }
+
+    const dots = Array.from({ length: 100 }, () => new Dot());
+    
+    function animate() {
+      dots.forEach(dot => dot.move());
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
 <div class="navbar" id="nav"></div>
   <script>
     fetch('../../pages.txt')
