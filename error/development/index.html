@@ -14,7 +14,6 @@
   <style>
     .navbar {
       background-color: black;
-      overflow: hidden;
       border:1px solid #ccc;
       border-width:1px 0;
       top: 0;
@@ -80,31 +79,7 @@
   </style>
 </head>
 <body>
-<div class="navbar" id="nav"></div>
   <script>
-    fetch('../../pages.txt')
-      .then(response => response.text())
-      .then(data => {
-        const links = data.split('\n');
-        links.forEach(line => {
-          if(line.trim()) {
-            const [name, url] = line.split('|');
-            document.getElementById('nav').innerHTML += `<a href="${url}">${name}</a>`;
-          }
-        });
-      });
-  </script>
-  <div class="header-container">
-        <div class="header-text">
-            Under development
-        </div>
-    </div>
-
-  <div class="content">
-    <p>The stupid devs didnt finish this page yet</p>
-    <p>Go check out something else in the mean time!</p>
-  </div>
-    <script>
     class Dot {
       constructor() {
         this.element = document.createElement('div');
@@ -142,5 +117,29 @@
 
     animate();
   </script>
+<div class="navbar" id="nav"></div>
+  <script>
+    fetch('../../pages.txt')
+      .then(response => response.text())
+      .then(data => {
+        const links = data.split('\n');
+        links.forEach(line => {
+          if(line.trim()) {
+            const [name, url] = line.split('|');
+            document.getElementById('nav').innerHTML += `<a href="${url}">${name}</a>`;
+          }
+        });
+      });
+  </script>
+  <div class="header-container">
+        <div class="header-text">
+            Under development
+        </div>
+    </div>
+
+  <div class="content">
+    <p>The stupid devs didnt finish this page yet</p>
+    <p>Go check out something else in the mean time!</p>
+  </div>
 </body>
 </html>
