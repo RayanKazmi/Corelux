@@ -7,7 +7,7 @@ body {
   overflow: hidden;
   margin: 0;
   background-color: #f0f0f0;
-  cursor: default; /* Default cursor */
+  cursor: default;
 }
 
 #ball {
@@ -16,10 +16,11 @@ body {
   height: 50px;
   border-radius: 50%;
   background-color: blue;
-  cursor: grab; /* Change cursor on hover */
+  cursor: grab;
 }
+
 #ball.dragging {
-    cursor: grabbing; /* Change cursor when dragging*/
+    cursor: grabbing;
 }
 </style>
 </head>
@@ -39,7 +40,8 @@ let dragOffsetY = 0;
 let lastMouseX = 0;
 let lastMouseY = 0;
 const friction = 0.98;
-const gravity = 0.2;
+const gravity = 0.5; // Increased gravity
+const bounce = 0.7; // Decreased bounciness
 
 function updateBallPosition() {
     if (!isDragging) {
@@ -50,13 +52,20 @@ function updateBallPosition() {
         x += dx;
         y += dy;
 
-        if (x + 50 > window.innerWidth || x < 0) {
-            dx = -dx;
-            x = x + (x + 50 > window.innerWidth ? -((x+50) - window.innerWidth) : -x);
+        if (x + 50 > window.innerWidth) {
+            x = window.innerWidth - 50;
+            dx = -dx * bounce; // Bounce off right wall
+        } else if (x < 0) {
+            x = 0;
+            dx = -dx * bounce; // Bounce off left wall
         }
-        if (y + 50 > window.innerHeight || y < 0) {
-            dy = -dy;
-            y = y + (y + 50 > window.innerHeight ? -((y+50) - window.innerHeight) : -y);
+
+        if (y + 50 > window.innerHeight) {
+            y = window.innerHeight - 50;
+            dy = -dy * bounce; // Bounce off bottom (floor)
+        } else if (y < 0) {
+            y = 0;
+            dy = -dy * bounce; // Bounce off top (ceiling)
         }
 
         ball.style.left = x + 'px';
@@ -89,14 +98,12 @@ window.addEventListener('mouseup', (e) => {
     if (isDragging) {
         isDragging = false;
         ball.classList.remove('dragging');
-        dx = e.clientX - lastMouseX;
-        dy = e.clientY - lastMouseY;
+        dx = (e.clientX - lastMouseX); // Velocity calculation
+        dy = (e.clientY - lastMouseY); // Velocity calculation
         lastMouseX = 0;
         lastMouseY = 0;
     }
 });
-
-//Prevent dragging outside of window
 window.addEventListener("blur", () => {
     if (isDragging) {
         isDragging = false;
