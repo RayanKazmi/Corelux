@@ -41,6 +41,16 @@
       overflow: hidden;
     }
 
+    #dot-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
     .dot {
       position: absolute;
       background: white;
@@ -48,10 +58,11 @@
     }
     
     .content {
+      position: relative;
+      z-index: 2;
       padding: 20px;
-      background-color: black;
-      text-align: center;
       color: white;
+      background-color: black;
     }
     
     .header-image {
@@ -60,7 +71,8 @@
             object-fit: cover;
     }
     .header-text {
-            position: absolute;
+            position: relative;
+            z-index: 2;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -72,6 +84,7 @@
     }
     .header-container {
             position: relative;
+            z-index: 2;
             width: 100%;
             height: 500px;
             overflow: hidden;
@@ -79,63 +92,45 @@
   </style>
 </head>
 <body>
-<script>
-// Configuration variables
-const numDots = 200;
-const dotSizeMin = 2;
-const dotSizeMax = 8;
-const dotOpacityMin = 0.3;
-const dotOpacityMax = 0.8;
-const dotSpeedMin = 0.1;
-const dotSpeedMax = 0.3;
 
-class Dot {
-  constructor() {
-    this.element = document.createElement('div');
-    this.element.className = 'dot';
-    this.size = Math.random() * (dotSizeMax - dotSizeMin) + dotSizeMin;
-    this.x = Math.random() * window.innerWidth; // Use window width
-    this.y = Math.random() * window.innerHeight; // Use window height
-    this.opacity = Math.random() * (dotOpacityMax - dotOpacityMin) + dotOpacityMin;
-    this.speedX = (Math.random() - 0.5) * (dotSpeedMax - dotSpeedMin) * 2 + (Math.random() > 0.5 ? dotSpeedMin : -dotSpeedMin);
-    this.speedY = (Math.random() - 0.5) * (dotSpeedMax - dotSpeedMin) * 2 + (Math.random() > 0.5 ? dotSpeedMin : -dotSpeedMin);
+  <script>
+    class Dot {
+      constructor() {
+        this.element = document.createElement('div');
+        this.element.className = 'dot';
+        this.x = Math.random() * window.innerWidth;
+        this.y = Math.random() * window.innerHeight;
+        this.size = Math.random() * 8 + 2;
+        this.opacity = Math.random() * 0.5 + 0.2;
+        this.speedX = (Math.random() - 0.5) * 0.5;
+        this.speedY = (Math.random() - 0.5) * 0.5;
+        
+        this.element.style.width = this.size + 'px';
+        this.element.style.height = this.size + 'px';
+        this.element.style.opacity = this.opacity;
+        document.getElementById('dot-container').appendChild(this.element);
+      }
 
-    this.element.style.width = this.size + 'px';
-    this.element.style.height = this.size + 'px';
-    this.element.style.opacity = this.opacity;
-    document.body.appendChild(this.element);
-  }
+      move() {
+        this.x += this.speedX;
+        this.y += this.speedY;
 
-  move() {
-    this.x += this.speedX;
-    this.y += this.speedY;
+        if (this.x < 0 || this.x > window.innerWidth) this.speedX *= -1;
+        if (this.y < 0 || this.y > window.innerHeight) this.speedY *= -1;
 
-    // Bounce off window edges
-    if (this.x < 0 || this.x > window.innerWidth) {
-      this.speedX *= -1;
-      if (this.x < 0) this.x = 0; // Prevent dot from going off-screen
-      if (this.x > window.innerWidth) this.x = window.innerWidth; // Prevent dot from going off-screen
-    }
-    if (this.y < 0 || this.y > window.innerHeight) {
-      this.speedY *= -1;
-      if (this.y < 0) this.y = 0; // Prevent dot from going off-screen
-      if (this.y > window.innerHeight) this.y = window.innerHeight; // Prevent dot from going off-screen
+        this.element.style.transform = `translate(${this.x}px, ${this.y}px)`;
+      }
     }
 
-    this.element.style.transform = `translate(${this.x}px, ${this.y}px)`;
-  }
-}
+    const dots = Array.from({ length: 100 }, () => new Dot());
+    
+    function animate() {
+      dots.forEach(dot => dot.move());
+      requestAnimationFrame(animate);
+    }
 
-const dots = Array.from({ length: numDots }, () => new Dot());
-
-function animate() {
-  dots.forEach(dot => dot.move());
-  requestAnimationFrame(animate);
-}
-
-animate();
-
-</script>
+    animate();
+  </script>
 <div class="navbar" id="nav"></div>
   <script>
     fetch('../../pages.txt')
@@ -155,5 +150,8 @@ animate();
             Under development
         </div>
     </div>
+<div class="content">
+    test
+</div>
 </body>
 </html>
