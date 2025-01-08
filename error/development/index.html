@@ -18,7 +18,6 @@
       border-width:1px 0;
       top: 0;
     }
-    
     .navbar a {
       float: left;
       color: white;
@@ -26,45 +25,12 @@
       padding: 14px 16px;
       text-decoration: none;
     }
-    
     .navbar a:hover {
       background-color: #ddd;
       color: black;
       border:1px solid #ccc;
       border-width:1px 0;
     }
-    
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: black;
-      overflow: hidden;
-    }
-
-    #dot-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 1;
-    }
-    
-    .dot {
-      position: absolute;
-      background: white;
-      border-radius: 50%;
-    }
-    
-    .content {
-      position: relative;
-      z-index: 2;
-      padding: 20px;
-      color: white;
-      background-color: black;
-    }
-    
     .header-image {
             width: 100%;
             height: 100%;
@@ -89,9 +55,57 @@
             height: 500px;
             overflow: hidden;
         }
+    body {
+      margin: 0;
+      min-height: 200vh;
+      background: black;
+    }
+    #dot-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .dot {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+    }
+    .content {
+      position: relative;
+      z-index: 2;
+      padding: 20px;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
   </style>
 </head>
 <body>
+<div class="navbar" id="nav"></div>
+  <script>
+    fetch('../../pages.txt')
+      .then(response => response.text())
+      .then(data => {
+        const links = data.split('\n');
+        links.forEach(line => {
+          if(line.trim()) {
+            const [name, url] = line.split('|');
+            document.getElementById('nav').innerHTML += `<a href="${url}">${name}</a>`;
+          }
+        });
+      });
+  </script>
+   <div id="dot-container"></div>
+  <div class="content">
+    <h1>Scrollable Content</h1>
+    <p>You can scroll this page while the dots float in the background.</p>
+    <p>The dots will stay fixed to the viewport while you scroll.</p>
+    <!-- Add more content to make the page scrollable -->
+    <div style="height: 200vh;"></div>
+  </div>
 
   <script>
     class Dot {
@@ -131,29 +145,5 @@
 
     animate();
   </script>
-<div class="navbar" id="nav"></div>
-  <script>
-    fetch('../../pages.txt')
-      .then(response => response.text())
-      .then(data => {
-        const links = data.split('\n');
-        links.forEach(line => {
-          if(line.trim()) {
-            const [name, url] = line.split('|');
-            document.getElementById('nav').innerHTML += `<a href="${url}">${name}</a>`;
-          }
-        });
-      });
-  </script>
-  <div class="header-container">
-        <div class="header-text">
-            Under development
-        </div>
-    </div>
-   <div id="dot-container"></div>
-  <div class="content">
-    <p>You can scroll this page while the dots float in the background.</p>
-    <p>The dots will stay fixed to the viewport while you scroll.</p>
-  </div>
 </body>
 </html>
