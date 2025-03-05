@@ -13,11 +13,14 @@
   <title>Corelux Credits</title>
   <style>
     .navbar {
-      background-color: white;
+      background-color: black;
       overflow: hidden;
       border: 1px solid #ccc;
       border-width: 1px 0;
       top: 0;
+      width: 100%;
+      position: fixed;
+      z-index: 1000;
       display: flex;
       justify-content: space-around;
       padding: 0 20px;
@@ -26,7 +29,7 @@
 
     .navbar a {
       float: left;
-      color: black;
+      color: white;
       text-align: center;
       padding: 14px 16px;
       text-decoration: none;
@@ -42,6 +45,7 @@
 
     .navbar .dropdown {
       display: inline-block;
+      position: relative;
     }
 
     .navbar .dropdown-content {
@@ -75,6 +79,7 @@
       margin: 0;
       font-family: Arial, sans-serif;
       background-color: black;
+      padding-top: 50px; /* Adjust based on navbar height */
     }
 
     .content {
@@ -117,22 +122,26 @@
     fetch('pages.txt')
       .then(response => response.text())
       .then(data => {
-        const links = data.split('\n');
-        links.forEach(line => {
-          if(line.trim()) {
+        const lines = data.split('\n');
+        lines.forEach(line => {
+          line = line.trim();
+          if (line.startsWith('Dropdown')) {
+            const dropdownName = line.match(/Dropdown\d+\[(.*)\]/)[1].trim();
+            const dropdown = document.createElement('div');
+            dropdown.className = 'dropdown';
+            dropdown.innerHTML = `<a href="#">${dropdownName}</a><div class="dropdown-content"></div>`;
+            document.getElementById('nav').appendChild(dropdown);
+            const dropdownContent = dropdown.querySelector('.dropdown-content');
+            const links = line.match(/\[(.*)\]/)[1].split('\n');
+            links.forEach(link => {
+              const [name, url] = link.split('|');
+              const newUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+              dropdownContent.innerHTML += `<a href="${newUrl.trim()}">${name.trim()}</a>`;
+            });
+          } else if (line) {
             const [name, url] = line.split('|');
             const newUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-            const dropdownHTML = `
-              <div class="dropdown">
-                <a href="${newUrl}">${name}</a>
-                <div class="dropdown-content">
-                  <a href="${newUrl}/subpage1">Subpage 1</a>
-                  <a href="${newUrl}/subpage2">Subpage 2</a>
-                  <a href="${newUrl}/subpage3">Subpage 3</a>
-                </div>
-              </div>
-            `;
-            document.getElementById('nav').innerHTML += dropdownHTML;
+            document.getElementById('nav').innerHTML += `<a href="${newUrl.trim()}">${name.trim()}</a>`;
           }
         });
       });
