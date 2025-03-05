@@ -5,3 +5,15 @@ Anouncments|/error/development
 Events|/error/development
 The google site|https://sites.google.com/view/coreluxunblocking/home
 Credits|/Credits
+
+Dropdown1[
+Subpage 1.1|/subpage1-1
+Subpage 1.2|/subpage1-2
+Subpage 1.3|/subpage1-3
+]
+
+Dropdown2[
+Subpage 2.1|/subpage2-1
+Subpage 2.2|/subpage2-2
+Subpage 2.3|/subpage2-3
+]
