@@ -1,0 +1,7 @@
+Home|/
+Games|/error/development
+Proxies|/error/development
+Anouncments|/error/development
+Events|/error/development
+The google site|https://sites.google.com/view/coreluxunblocking/home
+Credits|/Credits
