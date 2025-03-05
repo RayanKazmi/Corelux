@@ -22,13 +22,12 @@
       position: fixed;
       z-index: 1000;
       display: flex;
-      justify-content: space-around;
+      justify-content: space-between;
       padding: 0 20px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
     .navbar a {
-      float: left;
       color: white;
       text-align: center;
       padding: 14px 16px;
@@ -38,7 +37,7 @@
       position: relative;
     }
 
-    .navbar a:hover {
+    .navbar a:hover, .dropdown:hover .dropbtn {
       background-color: #ddd;
       color: black;
     }
@@ -67,12 +66,53 @@
       text-align: left;
     }
 
+    .navbar .dropdown-content .dropdown {
+      position: relative;
+    }
+
+    .navbar .dropdown-content .dropdown-content {
+      left: 100%;
+      top: 0;
+    }
+
     .navbar .dropdown-content a:hover {
       background-color: #ddd;
     }
 
     .navbar .dropdown:hover .dropdown-content {
       display: block;
+    }
+
+    .navbar .more {
+      display: none;
+    }
+
+    @media (max-width: 800px) {
+      .navbar a:not(:first-child), .navbar .dropdown:not(:first-child) {
+        display: none;
+      }
+      .navbar .more {
+        display: block;
+      }
+    }
+
+    @media (max-width: 800px) {
+      .navbar.responsive {position: relative;}
+      .navbar.responsive .more {
+        position: absolute;
+        right: 0;
+        top: 0;
+      }
+      .navbar.responsive .dropdown-content {
+        position: relative;
+      }
+      .navbar.responsive .navbar a {
+        display: block;
+        text-align: left;
+      }
+      .navbar.responsive .navbar .dropdown {float: none;}
+      .navbar.responsive .navbar .dropdown-content {position: relative;}
+      .navbar.responsive .navbar .dropdown .dropdown-content {position: absolute;}
     }
 
     body {
@@ -116,7 +156,9 @@
   </style>
 </head>
 <body>
-<div class="navbar" id="nav"></div>
+<div class="navbar" id="nav">
+  <a href="javascript:void(0);" class="more" onclick="toggleNavbar()">☰ More</a>
+</div>
   <script>
     const baseUrl = window.location.origin;
     fetch('pages.txt')
@@ -124,13 +166,24 @@
       .then(data => {
         const lines = data.split('\n');
         let dropdown = null;
+
+        function createDropdown(name) {
+          const dropdown = document.createElement('div');
+          dropdown.className = 'dropdown';
+          dropdown.innerHTML = `<a href="javascript:void(0);" class="dropbtn">${name}</a><div class="dropdown-content"></div>`;
+          return dropdown;
+        }
+
+        function addLink(container, name, url) {
+          const newUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+          container.innerHTML += `<a href="${newUrl.trim()}">${name.trim()}</a>`;
+        }
+
         lines.forEach(line => {
           line = line.trim();
           if (line.startsWith('Dropdown')) {
             const dropdownName = line.match(/(Dropdown\d+)/)[1].trim();
-            dropdown = document.createElement('div');
-            dropdown.className = 'dropdown';
-            dropdown.innerHTML = `<a href="#">${dropdownName}</a><div class="dropdown-content"></div>`;
+            dropdown = createDropdown(dropdownName);
             document.getElementById('nav').appendChild(dropdown);
           } else if (line.startsWith('[') && dropdown) {
             const links = line.slice(1, -1).split('\n');
@@ -138,17 +191,35 @@
             links.forEach(link => {
               if (link.trim()) {
                 const [name, url] = link.split('|');
-                const newUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-                dropdownContent.innerHTML += `<a href="${newUrl.trim()}">${name.trim()}</a>`;
+                if (name.startsWith('Dropdown')) {
+                  const subDropdown = createDropdown(name);
+                  dropdownContent.appendChild(subDropdown);
+                  const subDropdownContent = subDropdown.querySelector('.dropdown-content');
+                  const subLinks = url.slice(1, -1).split('\n');
+                  subLinks.forEach(subLink => {
+                    const [subName, subUrl] = subLink.split('|');
+                    addLink(subDropdownContent, subName, subUrl);
+                  });
+                } else {
+                  addLink(dropdownContent, name, url);
+                }
               }
             });
           } else if (line) {
             const [name, url] = line.split('|');
-            const newUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-            document.getElementById('nav').innerHTML += `<a href="${newUrl.trim()}">${name.trim()}</a>`;
+            addLink(document.getElementById('nav'), name, url);
           }
         });
       });
+
+    function toggleNavbar() {
+      const navbar = document.getElementById("nav");
+      if (navbar.className === "navbar") {
+        navbar.className += " responsive";
+      } else {
+        navbar.className = "navbar";
+      }
+    }
   </script>
   <div class="header-container">
         <img src="image.jpg" alt="Header Image" class="header-image">
