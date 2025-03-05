@@ -22,7 +22,7 @@
       position: fixed;
       z-index: 1000;
       display: flex;
-      justify-content: space-between;
+      justify-content: space-around;
       padding: 0 20px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
@@ -159,79 +159,64 @@
 <div class="navbar" id="nav">
   <a href="javascript:void(0);" class="more" onclick="toggleNavbar()">☰ More</a>
 </div>
-  <script>
-    const baseUrl = window.location.origin;
-    fetch('pages.txt')
-      .then(response => response.text())
-      .then(data => {
-        const lines = data.split('\n');
+<script>
+  const baseUrl = window.location.origin;
+  fetch('pages.txt')
+    .then(response => response.text())
+    .then(data => {
+      const lines = data.split('\n');
+      
+      function createDropdown(name) {
+        const dropdown = document.createElement('div');
+        dropdown.className = 'dropdown';
+        dropdown.innerHTML = `<a href="javascript:void(0);" class="dropbtn">${name}</a><div class="dropdown-content"></div>`;
+        return dropdown;
+      }
+
+      function addLink(container, name, url) {
+        const newUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+        container.innerHTML += `<a href="${newUrl.trim()}">${name.trim()}</a>`;
+      }
+
+      function processLines(lines, parentContainer) {
         let dropdown = null;
-
-        function createDropdown(name) {
-          const dropdown = document.createElement('div');
-          dropdown.className = 'dropdown';
-          dropdown.innerHTML = `<a href="javascript:void(0);" class="dropbtn">${name}</a><div class="dropdown-content"></div>`;
-          return dropdown;
-        }
-
-        function addLink(container, name, url) {
-          const newUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-          container.innerHTML += `<a href="${newUrl.trim()}">${name.trim()}</a>`;
-        }
-
         lines.forEach(line => {
           line = line.trim();
           if (line.startsWith('Dropdown')) {
             const dropdownName = line.match(/(Dropdown\d+)/)[1].trim();
             dropdown = createDropdown(dropdownName);
-            document.getElementById('nav').appendChild(dropdown);
-          } else if (line.startsWith('[') && dropdown) {
-            const links = line.slice(1, -1).split('\n');
-            const dropdownContent = dropdown.querySelector('.dropdown-content');
-            links.forEach(link => {
-              if (link.trim()) {
-                const [name, url] = link.split('|');
-                if (name.startsWith('Dropdown')) {
-                  const subDropdown = createDropdown(name);
-                  dropdownContent.appendChild(subDropdown);
-                  const subDropdownContent = subDropdown.querySelector('.dropdown-content');
-                  const subLinks = url.slice(1, -1).split('\n');
-                  subLinks.forEach(subLink => {
-                    const [subName, subUrl] = subLink.split('|');
-                    addLink(subDropdownContent, subName, subUrl);
-                  });
-                } else {
-                  addLink(dropdownContent, name, url);
-                }
-              }
-            });
-          } else if (line) {
+            parentContainer.appendChild(dropdown);
+            processLines(line.slice(line.indexOf('[') + 1, line.lastIndexOf(']')).split('\n'), dropdown.querySelector('.dropdown-content'));
+          } else if (line && !line.startsWith('[') && !line.endsWith(']')) {
             const [name, url] = line.split('|');
-            addLink(document.getElementById('nav'), name, url);
+            addLink(parentContainer, name, url);
           }
         });
-      });
-
-    function toggleNavbar() {
-      const navbar = document.getElementById("nav");
-      if (navbar.className === "navbar") {
-        navbar.className += " responsive";
-      } else {
-        navbar.className = "navbar";
       }
-    }
-  </script>
-  <div class="header-container">
-        <img src="image.jpg" alt="Header Image" class="header-image">
-        <div class="header-text">
-            Your Bold Header Text
-        </div>
-    </div>
 
-  <div class="content">
-    <h1>The Corelux HTML Crew</h1>
-    <p>Being setup</p>
-    <p>Thank you for using Corelux!</p>
+      processLines(lines, document.getElementById('nav'));
+    });
+
+  function toggleNavbar() {
+    const navbar = document.getElementById("nav");
+    if (navbar.className === "navbar") {
+      navbar.className += " responsive";
+    } else {
+      navbar.className = "navbar";
+    }
+  }
+</script>
+<div class="header-container">
+  <img src="image.jpg" alt="Header Image" class="header-image">
+  <div class="header-text">
+    Your Bold Header Text
   </div>
+</div>
+
+<div class="content">
+  <h1>The Corelux HTML Crew</h1>
+  <p>Being setup</p>
+  <p>Thank you for using Corelux!</p>
+</div>
 </body>
 </html>
