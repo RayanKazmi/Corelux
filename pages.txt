@@ -1,8 +1,7 @@
-Home|https://corelux-unblocking.com
-Games|https://corelux-unblocking.com/error/development
-Proxies|https://corelux-unblocking.com/error/development
-Anouncments|https://corelux-unblocking.com/error/development
-Events|https://corelux-unblocking.com/error/development
+Home|/
+Games|/error/development
+Proxies|/error/development
+Anouncments|/error/development
+Events|/error/development
 The google site|https://sites.google.com/view/coreluxunblocking/home
-Credits|https://corelux-unblocking.com/Credits
-
+Credits|/Credits
