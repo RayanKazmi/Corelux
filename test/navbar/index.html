@@ -21,10 +21,11 @@
       top: 0;
       z-index: 1000;
       padding: 10px 20px;
+      display: flex;
+      align-items: center;
     }
     
     .navbar a {
-      float: left;
       color: white;
       text-align: center;
       padding: 18px 20px;
@@ -32,11 +33,54 @@
       font-size: 18px;
       transition: background-color 0.3s, color 0.3s;
       border-radius: 4px;
+      margin-right: 10px;
     }
     
     .navbar a:hover {
       background-color: #5f6368;
       color: white;
+    }
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropbtn {
+      background-color: #202124;
+      color: white;
+      padding: 18px 20px;
+      font-size: 18px;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #202124;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 1;
+    }
+
+    .dropdown-content a {
+      color: white;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      text-align: left;
+    }
+
+    .dropdown-content a:hover {background-color: #5f6368;}
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .dropdown:hover .dropbtn {
+      background-color: #5f6368;
     }
     
     body {
@@ -86,14 +130,37 @@
     fetch('pages.txt')
       .then(response => response.text())
       .then(data => {
-        const links = data.split('\n');
+        const links = data.split('\n').filter(line => line.trim());
+        const navbar = document.getElementById('nav');
+        const dropdown = document.createElement('div');
+        dropdown.classList.add('dropdown');
+        dropdown.innerHTML = `
+          <button class="dropbtn">More</button>
+          <div class="dropdown-content" id="dropdown-content"></div>
+        `;
+        navbar.appendChild(dropdown);
+        const dropdownContent = document.getElementById('dropdown-content');
         links.forEach(line => {
-          if(line.trim()) {
-            const [name, url] = line.split('|');
-            const newUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-            document.getElementById('nav').innerHTML += `<a href="${newUrl}">${name}</a>`;
-          }
+          const [name, url] = line.split('|');
+          const newUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+          const linkElement = document.createElement('a');
+          linkElement.href = newUrl;
+          linkElement.textContent = name;
+          navbar.insertBefore(linkElement, dropdown);
         });
+        const checkOverflow = () => {
+          const navbarRect = navbar.getBoundingClientRect();
+          const dropdownRect = dropdown.getBoundingClientRect();
+          const links = Array.from(navbar.querySelectorAll('a'));
+          links.forEach(link => {
+            const linkRect = link.getBoundingClientRect();
+            if (linkRect.right > dropdownRect.left) {
+              dropdownContent.appendChild(link);
+            }
+          });
+        };
+        window.addEventListener('resize', checkOverflow);
+        checkOverflow();
       });
   </script>
   <div class="header-container">
