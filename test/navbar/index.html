@@ -23,7 +23,7 @@
       padding: 10px 20px;
     }
     
-    .navbar a {
+    .navbar a, .dropbtn {
       float: left;
       color: white;
       text-align: center;
@@ -32,11 +32,45 @@
       font-size: 18px;
       transition: background-color 0.3s, color 0.3s;
       border-radius: 4px;
+      background-color: inherit;
+      border: none;
+      outline: none;
+    }
+
+    .dropdown {
+      float: left;
+      overflow: hidden;
     }
     
-    .navbar a:hover {
+    .navbar a:hover, .dropdown:hover .dropbtn {
       background-color: #5f6368;
       color: white;
+    }
+    
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #202124;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 1;
+    }
+    
+    .dropdown-content a {
+      float: none;
+      color: white;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      text-align: left;
+    }
+    
+    .dropdown-content a:hover {
+      background-color: #5f6368;
+    }
+    
+    .dropdown:hover .dropdown-content {
+      display: block;
     }
     
     body {
@@ -80,18 +114,35 @@
   </style>
 </head>
 <body>
-<div class="navbar" id="nav"></div>
+<div class="navbar" id="nav">
+  <div class="dropdown">
+    <button class="dropbtn">More 
+      <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-content" id="dropdown-content">
+    </div>
+  </div>
+</div>
   <script>
     const baseUrl = window.location.origin;
+    const navbar = document.getElementById('nav');
+    const dropdownContent = document.getElementById('dropdown-content');
+    
     fetch('pages.txt')
       .then(response => response.text())
       .then(data => {
         const links = data.split('\n');
-        links.forEach(line => {
+        links.forEach((line, index) => {
           if(line.trim()) {
             const [name, url] = line.split('|');
             const newUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-            document.getElementById('nav').innerHTML += `<a href="${newUrl}">${name}</a>`;
+            const linkElement = `<a href="${newUrl}">${name}</a>`;
+            
+            if(index < 5) { // Show first 5 links in navbar, rest in dropdown
+              navbar.innerHTML += linkElement;
+            } else {
+              dropdownContent.innerHTML += linkElement;
+            }
           }
         });
       });
