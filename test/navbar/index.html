@@ -12,78 +12,53 @@
 </script>
   <title>Corelux</title>
   <style>
+    .navbar {
+      background-color: #202124;
+      overflow: hidden;
+      border-bottom: 1px solid #ccc;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      padding: 10px 20px;
+    }
+    
+    .navbar a {
+      float: left;
+      color: white;
+      text-align: center;
+      padding: 18px 20px;
+      text-decoration: none;
+      font-size: 18px;
+      transition: background-color 0.3s, color 0.3s;
+      border-radius: 4px;
+    }
+    
+    .navbar a:hover {
+      background-color: #5f6368;
+      color: white;
+    }
+    
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background-color: white;
+      background-color: black;
+      padding-top: 70px; /* Adjusted for the fixed navbar height */
     }
-
-    .navbar {
-      background-color: #fff;
-      border-bottom: 1px solid #ccc;
-      padding: 0 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-
-    .navbar a {
-      color: #5f6368;
-      text-decoration: none;
-      padding: 14px 20px;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-    }
-
-    .navbar a:hover {
-      background-color: #f8f9fa;
-      color: #202124;
-    }
-
-    .navbar .logo {
-      font-size: 24px;
-      font-weight: bold;
-      color: #202124;
-      display: flex;
-      align-items: center;
-    }
-
-    .navbar .logo img {
-      height: 24px;
-      margin-right: 8px;
-    }
-
-    .navbar .right-links {
-      display: flex;
-      align-items: center;
-    }
-
-    .navbar .right-links a {
-      margin-left: 16px;
-    }
-
-    .navbar .icon {
-      margin-right: 8px;
-      font-size: 18px;
-    }
-
+    
     .content {
       padding: 20px;
-      background-color: white;
+      background-color: black;
       text-align: center;
-      color: #202124;
+      color: white;
     }
-
+    
     .header-image {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
-
+    
     .header-text {
       position: absolute;
       top: 50%;
@@ -95,7 +70,7 @@
       text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
       text-align: center;
     }
-
+    
     .header-container {
       position: relative;
       width: 100%;
@@ -105,42 +80,33 @@
   </style>
 </head>
 <body>
-<div class="navbar" id="nav">
-  <div class="logo">
-    <img src="logo.png" alt="Logo">
-    Corelux
-  </div>
-  <div class="right-links">
-    <!-- Links will be populated here by JavaScript -->
-  </div>
-</div>
-<script>
-  const baseUrl = window.location.origin;
-  fetch('../pages.txt')
-    .then(response => response.text())
-    .then(data => {
-      const links = data.split('\n');
-      const rightLinksContainer = document.querySelector('.navbar .right-links');
-      links.forEach(line => {
-        if(line.trim()) {
-          const [name, url] = line.split('|');
-          const newUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-          rightLinksContainer.innerHTML += `<a href="${newUrl}">${name}</a>`;
-        }
+<div class="navbar" id="nav"></div>
+  <script>
+    const baseUrl = window.location.origin;
+    fetch('../pages.txt')
+      .then(response => response.text())
+      .then(data => {
+        const links = data.split('\n');
+        links.forEach(line => {
+          if(line.trim()) {
+            const [name, url] = line.split('|');
+            const newUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+            document.getElementById('nav').innerHTML += `<a href="${newUrl}">${name}</a>`;
+          }
+        });
       });
-    });
-</script>
-<div class="header-container">
-  <img src="image.jpg" alt="Header Image" class="header-image">
-  <div class="header-text">
-    Your Bold Header Text
-  </div>
-</div>
+  </script>
+  <div class="header-container">
+        <img src="image.jpg" alt="Header Image" class="header-image">
+        <div class="header-text">
+            Your Bold Header Text
+        </div>
+    </div>
 
-<div class="content">
-  <h1>Header</h1>
-  <p>Body</p>
-  <p>Thank you for using Corelux!</p>
-</div>
+  <div class="content">
+    <h1>Header</h1>
+    <p>Body</p>
+    <p>Thank you for using Corelux!</p>
+  </div>
 </body>
 </html>
