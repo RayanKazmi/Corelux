@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-Y4LDHEQ6SL"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-Y4LDHEQ6SL');
+</script>
+  <title>Corelux Announcements</title>
+  <style>
+    .navbar {
+      background-color: #111111; /* Darker background color */
+      overflow: hidden;
+      border-bottom: 1px solid #444444;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      padding: 5px 10px; /* Smaller padding */
+    }
+    
+    .navbar a {
+      float: left;
+      color: #ffffff;
+      text-align: center;
+      padding: 18px 20px;
+      text-decoration: none;
+      font-size: 18px;
+      transition: background-color 0.3s, color 0.3s;
+      border-radius: 4px;
+    }
+    
+    .navbar a:hover {
+      background-color: #5f6368;
+      color: #ffffff;
+    }
+    
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #000000;
+      padding-top: 50px; /* Adjusted for the fixed navbar height */
+    }
+    
+    .content {
+      padding: 20px;
+      background-color: #000000;
+      text-align: center;
+      color: #ffffff;
+    }
+    
+    .header-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .header-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #ffffff;
+      font-size: 6rem;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      text-align: center;
+    }
+    
+    .header-container {
+      position: relative;
+      width: 100%;
+      height: 300px;
+      overflow: hidden;
+    }
+    
+    .announcement {
+      background-color: #222222;
+      border: 3px solid #444444;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 800px;
+      text-align: left;
+    }
+    
+    .announcement h2 {
+      color: #ffcc00;
+    }
+    
+    .announcement p {
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+<div class="navbar" id="nav"></div>
+  <script>
+    const baseUrl = window.location.origin;
+    fetch('../pages.txt')
+      .then(response => response.text())
+      .then(data => {
+        const links = data.split('\n');
+        links.forEach(line => {
+          if(line.trim()) {
+            const [name, url] = line.split('|');
+            const newUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+            document.getElementById('nav').innerHTML += `<a href="${newUrl}">${name}</a>`;
+          }
+        });
+      });
+  </script>
+  <div class="header-container">
+    <div class="header-text">
+      Corelux Announcements
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="announcement" style="background-color: #262626; border-color: #403f3f; color: #ffffff;">
+      <h2 style="color: #ffffff;">First Announcement!</h2>
+      <p>Posted on: 2025-03-06 19:06:19 UTC by RayanK</p>
+      <p>
+        Hello, This is the first annoucement we will be posting on this site! It has taken months to code considering everything here is made from raw code instead of a website designer! We are looking to open the Corelux repo soon so you guys can help build the site with us! Anyways thats all for this first announcement.
+      </p>
+      <p>
+        Thank you for being a part of the Corelux community! And remember to always have fun!
+      </p>
+      <p>Thank you for using Corelux!</p>
+    </div>
+  </div>
+</body>
+</html>
