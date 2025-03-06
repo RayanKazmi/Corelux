@@ -1,22 +1,8 @@
 Home|/
-Games|/error/development
+Cool Gadget|/gadgets
 Proxies|/error/development
 Anouncments|/error/development
 Events|/error/development
+Google Site Status|https://sites.google.com/view/coreluxunblocking-status/home
 The google site|https://sites.google.com/view/coreluxunblocking/home
 Credits|/Credits
-
-Dropdown1[
-Subpage 1.1|/subpage1-1
-Subpage 1.2|/subpage1-2
-Dropdown1.1[
-Subpage 1.1.1|/subpage1-1-1
-Subpage 1.1.2|/subpage1-1-2
-]
-]
-
-Dropdown2[
-Subpage 2.1|/subpage2-1
-Subpage 2.2|/subpage2-2
-Subpage 2.3|/subpage2-3
-]
