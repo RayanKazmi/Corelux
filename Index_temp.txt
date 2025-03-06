@@ -10,7 +10,7 @@
 
   gtag('config', 'G-Y4LDHEQ6SL');
 </script>
-  <title>Corelux Credits</title>
+  <title>Corelux</title>
   <style>
     .navbar {
       background-color: black;
@@ -76,7 +76,7 @@
 <div class="navbar" id="nav"></div>
   <script>
     const baseUrl = window.location.origin;
-    fetch('pages.txt')
+    fetch('../pages.txt')
       .then(response => response.text())
       .then(data => {
         const links = data.split('\n');
@@ -97,8 +97,8 @@
     </div>
 
   <div class="content">
-    <h1>The Corelux HTML Crew</h1>
-    <p>Being setup</p>
+    <h1>Header</h1>
+    <p>Body</p>
     <p>Thank you for using Corelux!</p>
   </div>
 </body>
