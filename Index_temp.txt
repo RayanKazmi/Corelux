@@ -13,32 +13,37 @@
   <title>Corelux</title>
   <style>
     .navbar {
-      background-color: black;
+      background-color: #111; /* Darker background color */
       overflow: hidden;
-      border:1px solid #ccc;
-      border-width:1px 0;
+      border-bottom: 1px solid #444;
+      position: fixed;
+      width: 100%;
       top: 0;
+      z-index: 1000;
+      padding: 5px 10px; /* Smaller padding */
     }
     
     .navbar a {
       float: left;
       color: white;
       text-align: center;
-      padding: 14px 16px;
+      padding: 18px 20px;
       text-decoration: none;
+      font-size: 18px;
+      transition: background-color 0.3s, color 0.3s;
+      border-radius: 4px;
     }
     
     .navbar a:hover {
-      background-color: #ddd;
-      color: black;
-      border:1px solid #ccc;
-      border-width:1px 0;
+      background-color: #5f6368;
+      color: white;
     }
     
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       background-color: black;
+      padding-top: 50px; /* Adjusted for the fixed navbar height */
     }
     
     .content {
