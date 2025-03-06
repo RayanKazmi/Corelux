@@ -13,32 +13,37 @@
   <title>Corelux Gadgets</title>
   <style>
     .navbar {
-      background-color: black;
+      background-color: #181818; /* Darker background color */
       overflow: hidden;
-      border: 1px solid #ccc;
-      border-width: 1px 0;
+      border-bottom: 1px solid #ccc;
+      position: fixed;
+      width: 100%;
       top: 0;
+      z-index: 1000;
+      padding: 10px 20px;
     }
     
     .navbar a {
       float: left;
       color: white;
       text-align: center;
-      padding: 14px 16px;
+      padding: 18px 20px;
       text-decoration: none;
+      font-size: 18px;
+      transition: background-color 0.3s, color 0.3s;
+      border-radius: 4px;
     }
     
     .navbar a:hover {
-      background-color: #ddd;
-      color: black;
-      border: 1px solid #ccc;
-      border-width: 1px 0;
+      background-color: #5f6368;
+      color: white;
     }
     
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       background-color: black;
+      padding-top: 70px; /* Adjusted for the fixed navbar height */
     }
     
     .content {
@@ -119,20 +124,20 @@
 <body>
   <div class="navbar" id="nav"></div>
   <script>
-    const baseUrl = window.location.origin;
-    fetch('../pages.txt')
-      .then(response => response.text())
-      .then(data => {
-        const links = data.split('\n');
-        links.forEach(line => {
-          if(line.trim()) {
-            const [name, url] = line.split('|');
-            const newUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-            document.getElementById('nav').innerHTML += `<a href="${newUrl}">${name}</a>`;
-          }
+      const baseUrl = window.location.origin;
+      fetch('../pages.txt')
+        .then(response => response.text())
+        .then(data => {
+          const links = data.split('\n');
+          links.forEach(line => {
+            if(line.trim()) {
+              const [name, url] = line.split('|');
+              const newUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+              document.getElementById('nav').innerHTML += `<a href="${newUrl}">${name}</a>`;
+            }
+          });
         });
-      });
-  </script>
+    </script>
   <div class="header-container">
     <img src="image.jpg" alt="Header Image" class="header-image">
     <div class="header-text">
