@@ -3,6 +3,7 @@ Cool Gadget|/gadgets
 Proxies|/error/development
 Anouncments|/error/development
 Events|/error/development
+The Google Site|https://sites.google.com/view/coreluxunblocking/home
 Google Site Status|https://sites.google.com/view/coreluxunblocking-status/home
-The google site|https://sites.google.com/view/coreluxunblocking/home
+The Backup Site|/error/development
 Credits|/Credits
