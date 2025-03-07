@@ -1,6 +1,6 @@
 Home|/
 Cool Gadgets|/Gadgets
-Proxies|/error/development
+Proxies|/error/development/
 Blog|/Blog
 Events|/error/development
 The Google Site|https://sites.google.com/view/coreluxunblocking/home
