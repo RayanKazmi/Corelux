@@ -1,9 +1,9 @@
 Home|/
 Cool Gadgets|/Gadgets
-Proxies|/error/development/
+Proxies|/error/development
 Blog|/Blog
 Events|/error/development
 The Google Site|https://sites.google.com/view/coreluxunblocking/home
 Google Site Status|https://sites.google.com/view/coreluxunblocking-status/home
-The Backup Site|https://https://sites.google.com/view/coreluxunblock/home
+The Backup Site|https://sites.google.com/view/coreluxunblock/home
 Credits|/Credits
