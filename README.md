@@ -1,4 +1,3 @@
-# **Corelux Repo**
-This repo is for our site [Corelux](https://Corelux-unblocking.com/).
-It is a site were we run to show games and proxies we find.
-This read me is a work in progress.
+# **Corelux Github Repo**
+This repo is for our html site [corelux-unblocking.com](https://Corelux-unblocking.com/). If you have any isses with the website please let us know about them in the issues section.
+
