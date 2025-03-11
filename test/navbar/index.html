@@ -23,10 +23,12 @@
       top: 0;
       z-index: 1000;
       padding: 5px 10px; /* Smaller padding */
+      display: flex;
+      flex-wrap: nowrap;
+      white-space: nowrap;
     }
     
     .navbar a {
-      float: left;
       color: white;
       text-align: center;
       padding: 18px 20px;
@@ -34,11 +36,56 @@
       font-size: 18px;
       transition: background-color 0.3s, color 0.3s;
       border-radius: 4px;
+      display: inline-block;
     }
     
     .navbar a:hover {
       background-color: #5f6368;
       color: white;
+    }
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #111;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 1;
+    }
+
+    .dropdown-content a {
+      color: white;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #5f6368;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .dropdown:hover .dropbtn {
+      background-color: #5f6368;
+    }
+
+    .dropbtn {
+      background-color: #111;
+      color: white;
+      padding: 18px 20px;
+      font-size: 18px;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      display: inline-block;
     }
     
     body {
@@ -87,13 +134,46 @@
       .then(response => response.text())
       .then(data => {
         const links = data.split('\n');
+        const nav = document.getElementById('nav');
+        const moreDropdown = document.createElement('div');
+        moreDropdown.classList.add('dropdown');
+        moreDropdown.innerHTML = '<button class="dropbtn">More</button><div class="dropdown-content" id="moreDropdown"></div>';
+        nav.appendChild(moreDropdown);
+        
         links.forEach(line => {
           if(line.trim()) {
             const [name, url] = line.split('|');
             const newUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-            document.getElementById('nav').innerHTML += `<a href="${newUrl}">${name}</a>`;
+            const anchor = document.createElement('a');
+            anchor.href = newUrl;
+            anchor.textContent = name;
+            nav.insertBefore(anchor, moreDropdown);
           }
         });
+
+        const moreDropdownContent = document.getElementById('moreDropdown');
+        function updateNav() {
+          const navWidth = nav.offsetWidth;
+          const links = Array.from(nav.querySelectorAll('a:not(.dropbtn)'));
+          let totalWidth = moreDropdown.offsetWidth;
+          moreDropdownContent.innerHTML = '';
+
+          links.forEach(link => {
+            totalWidth += link.offsetWidth;
+            if (totalWidth > navWidth) {
+              moreDropdownContent.appendChild(link);
+            }
+          });
+
+          if (moreDropdownContent.children.length === 0) {
+            moreDropdown.style.display = 'none';
+          } else {
+            moreDropdown.style.display = 'block';
+          }
+        }
+
+        window.addEventListener('resize', updateNav);
+        updateNav();
       });
   </script>
   <div class="header-container">
