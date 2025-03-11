@@ -104,22 +104,18 @@
       flex: 1 1 calc(33.333% - 40px);
       margin: 20px;
       max-width: calc(33.333% - 40px);
-    }
-    
-    .partner-item.middle {
-      flex: 1 1 calc(50% - 40px);
-      max-width: calc(50% - 40px);
+      box-sizing: border-box;
     }
     
     @media (max-width: 1024px) {
-      .partner-item, .partner-item.middle {
+      .partner-item {
         flex: 1 1 calc(50% - 40px);
         max-width: calc(50% - 40px);
       }
     }
     
     @media (max-width: 768px) {
-      .partner-item, .partner-item.middle {
+      .partner-item {
         flex: 1 1 calc(100% - 40px);
         max-width: calc(100% - 40px);
       }
@@ -162,7 +158,7 @@
           <p>Thank you for using Corelux!</p>
         </div>
       </div>
-      <div class="partner-item middle">
+      <div class="partner-item">
         <div class="partner" style="background-color: #262626; border-color: #403f3f;">
           <h2>Partner 2</h2>
           <p>Posted on: 2025-03-11 16:06:31 UTC by RayanK</p>
