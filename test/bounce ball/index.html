@@ -41,9 +41,9 @@ let lastMouseX = 0;
 let lastMouseY = 0;
 let prevMouseX = 0;
 let prevMouseY = 0;
-const friction = 0.98;
+const friction = 0.99;
 const gravity = 0.3;
-const bounce = 0.8;
+const bounce = 1.5;
 
 function updateBallPosition() {
     if (!isDragging) {
