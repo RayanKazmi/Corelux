@@ -56,6 +56,7 @@
       min-width: 160px;
       box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
       z-index: 1;
+      right: 0; /* Align dropdown to the right */
     }
 
     .dropdown-content a {
@@ -69,12 +70,13 @@
       background-color: #5f6368;
     }
 
-    .dropdown:hover .dropdown-content {
-      display: block;
+    .dropdown .dropbtn::after {
+      content: ' ▼';
+      font-size: 12px;
     }
 
-    .dropdown:hover .dropbtn {
-      background-color: #5f6368;
+    .dropdown .dropbtn.active::after {
+      content: ' ▲';
     }
 
     .dropbtn {
@@ -137,7 +139,7 @@
         const nav = document.getElementById('nav');
         const moreDropdown = document.createElement('div');
         moreDropdown.classList.add('dropdown');
-        moreDropdown.innerHTML = '<button class="dropbtn">More</button><div class="dropdown-content" id="moreDropdown"></div>';
+        moreDropdown.innerHTML = '<button class="dropbtn" id="moreBtn">More</button><div class="dropdown-content" id="moreDropdown"></div>';
         nav.appendChild(moreDropdown);
         
         links.forEach(line => {
@@ -152,6 +154,7 @@
         });
 
         const moreDropdownContent = document.getElementById('moreDropdown');
+        const moreBtn = document.getElementById('moreBtn');
         function updateNav() {
           const navWidth = nav.offsetWidth;
           const links = Array.from(nav.querySelectorAll('a:not(.dropbtn)'));
@@ -171,6 +174,11 @@
             moreDropdown.style.display = 'block';
           }
         }
+
+        moreBtn.addEventListener('click', () => {
+          moreDropdownContent.style.display = moreDropdownContent.style.display === 'block' ? 'none' : 'block';
+          moreBtn.classList.toggle('active');
+        });
 
         window.addEventListener('resize', updateNav);
         updateNav();
