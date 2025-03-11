@@ -1,5 +1,5 @@
 Home|/
-Cool Gadget|/gadgets
+Cool Gadgets|/gadgets
 Proxies|/error/development
 Anouncments|/error/development
 Events|/error/development
