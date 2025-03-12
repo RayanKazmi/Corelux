@@ -6,28 +6,3 @@ Events|/error/development
 Google Site Status|https://sites.google.com/view/coreluxunblocking-status/home
 The google site|https://sites.google.com/view/coreluxunblocking/home
 Credits|/Credits
-Test1|/test1
-Test2|/test2
-Test3|/test3
-Test4|/test4
-Test5|/test5
-Test6|/test6
-Test7|/test7
-Test8|/test8
-Test9|/test9
-Test10|/test10
-Test11|/test11
-Test12|/test12
-Test13|/test13
-Test14|/test14
-Test15|/test15
-Test16|/test16
-Test17|/test17
-Test18|/test18
-Test19|/test19
-Test20|/test20
-Test21|/test21
-Test22|/test22
-Test23|/test23
-Test24|/test24
-Test25|/test25
