@@ -8,4 +8,4 @@ The Google Site|https://sites.google.com/view/coreluxunblocking/home
 Google Site Status|https://sites.google.com/view/coreluxunblocking-status/home
 The Backup Site|https://sites.google.com/view/coreluxunblock/home
 Credits|/Credits
-Github Repo|error/comming-soon
+Github Repo|/error/comming-soon
