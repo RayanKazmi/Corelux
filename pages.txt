@@ -1,10 +1,11 @@
 Home|/
-Cool Gadgets|/Gadgets
+Gadgets|/Gadgets
 Proxies|/error/development/
 Blog|/Blog
-Partners|/error/development
+Partners|/Partners
 Events|/error/development
 The Google Site|https://sites.google.com/view/coreluxunblocking/home
 Google Site Status|https://sites.google.com/view/coreluxunblocking-status/home
 The Backup Site|https://sites.google.com/view/coreluxunblock/home
 Credits|/Credits
+Github Repo|/error/comming-soon
