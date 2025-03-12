@@ -80,14 +80,35 @@
 
     .dropdown-content {
       display: none;
-      position: fixed; /* Changed to fixed */
+      position: fixed;
       background-color: #111;
       min-width: 160px;
+      max-height: 384px; /* 8 items * (12px padding top + 12px padding bottom + 24px line height) */
+      overflow-y: auto;
       box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
       z-index: 1001;
       border-radius: 4px;
-      right: 10px; /* Align with the navbar padding */
-      top: 60px; /* Position below the navbar */
+      right: 10px;
+      top: 60px;
+    }
+
+    /* Scrollbar styling */
+    .dropdown-content::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .dropdown-content::-webkit-scrollbar-track {
+      background: #222;
+      border-radius: 4px;
+    }
+
+    .dropdown-content::-webkit-scrollbar-thumb {
+      background: #444;
+      border-radius: 4px;
+    }
+
+    .dropdown-content::-webkit-scrollbar-thumb:hover {
+      background: #555;
     }
 
     .dropdown-content a {
@@ -97,6 +118,7 @@
       display: block;
       text-align: left;
       border-radius: 0;
+      line-height: 24px;
     }
 
     .dropdown-content a:first-child {
@@ -117,7 +139,7 @@
       margin: 0;
       font-family: Arial, sans-serif;
       background-color: black;
-      padding-top: 70px; /* Increased to ensure content starts below navbar */
+      padding-top: 70px;
     }
     
     .content {
