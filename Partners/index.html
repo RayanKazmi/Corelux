@@ -217,9 +217,54 @@
   </style>
 </head>
 <body>
-<div class="navbar" id="nav"></div>
+<div class="navbar" id="nav">
+  <div class="navbar-links" id="navLinks"></div>
+  <div class="dropdown" id="moreDropdown">
+    <button class="dropbtn">More</button>
+    <div class="dropdown-content" id="dropdownContent"></div>
+  </div>
+</div>
   <script>
     const baseUrl = window.location.origin;
+    
+    function checkOverflow() {
+      const nav = document.getElementById('nav');
+      const navLinks = document.getElementById('navLinks');
+      const dropdown = document.getElementById('moreDropdown');
+      const dropdownContent = document.getElementById('dropdownContent');
+      const links = Array.from(navLinks.getElementsByTagName('a'));
+      
+      // Reset dropdown content
+      dropdownContent.innerHTML = '';
+      dropdown.style.display = 'none';
+      
+      // Show all links initially
+      links.forEach(link => {
+        link.style.display = 'inline-block';
+      });
+      
+      // Calculate available width (accounting for padding and More button)
+      const navWidth = nav.offsetWidth - 100; // Account for padding and More button
+      let currentWidth = 0;
+      
+      for (let i = 0; i < links.length; i++) {
+        const link = links[i];
+        currentWidth += link.offsetWidth;
+        
+        if (currentWidth > navWidth) {
+          // Move this and all remaining links to dropdown
+          const remainingLinks = links.slice(i);
+          remainingLinks.forEach(link => {
+            link.style.display = 'none';
+            dropdownContent.insertAdjacentHTML('beforeend',
+              `<a href="${link.href}">${link.textContent}</a>`);
+          });
+          dropdown.style.display = 'block';
+          break;
+        }
+      }
+    }
+
     fetch('../pages.txt')
       .then(response => response.text())
       .then(data => {
@@ -228,9 +273,15 @@
           if(line.trim()) {
             const [name, url] = line.split('|');
             const newUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-            document.getElementById('nav').innerHTML += `<a href="${newUrl}">${name}</a>`;
+            document.getElementById('navLinks').insertAdjacentHTML('beforeend',
+              `<a href="${newUrl}">${name}</a>`);
           }
         });
+        
+        // Check overflow after adding links
+        checkOverflow();
+        // Recheck on window resize
+        window.addEventListener('resize', checkOverflow);
       });
   </script>
   <div class="header-container">
