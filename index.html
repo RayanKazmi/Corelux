@@ -28,6 +28,22 @@
 </script>
   <title>Corelux Unblocking</title>
   <style>
+   .arrow {
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        display: inline-block;
+        padding: 3px;
+        transform: rotate(-135deg);
+        transition: transform 0.3s ease;
+        margin-top: 3px;
+    }
+
+    /* Rotate arrow when dropdown is hovered */
+    .dropdown:hover .arrow {
+        transform: rotate(45deg);
+        margin-top: -3px;
+    }
+       
      .navbar {
        background-color: #111;
        border-bottom: 1px solid #444;
@@ -74,19 +90,22 @@
      }
 
      .dropbtn {
-       color: white;
-       padding: 18px 20px;
-       background-color: inherit;
-       font-family: inherit;
-       font-size: 18px;
-       margin: 0;
-       border: none;
-       outline: none;
-       cursor: pointer;
-       transition: background-color 0.3s, color 0.3s;
-       border-radius: 4px;
-       white-space: nowrap;
-     }
+    color: white;
+    padding: 18px 20px;
+    background-color: inherit;
+    font-family: inherit;
+    font-size: 18px;
+    margin: 0;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    border-radius: 4px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 
      .dropdown:hover .dropbtn {
        background-color: #5f6368;
@@ -217,7 +236,7 @@
 <div class="navbar" id="nav">
   <div class="navbar-links" id="navLinks"></div>
   <div class="dropdown" id="moreDropdown">
-    <button class="dropbtn">More</button>
+    <button class="dropbtn">More <span class="arrow"></span></button>
     <div class="dropdown-content" id="dropdownContent"></div>
   </div>
 </div>
