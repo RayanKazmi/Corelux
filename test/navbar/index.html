@@ -16,17 +16,24 @@
   <style>
     .navbar {
       background-color: #111;
-      overflow: visible; /* Changed to visible to show dropdown */
+      overflow: hidden;
       border-bottom: 1px solid #444;
       position: fixed;
       width: 100%;
       top: 0;
       z-index: 1000;
       padding: 5px 10px;
+      white-space: nowrap; /* Prevent wrapping */
+      display: flex; /* Use flexbox */
+    }
+    
+    .navbar-links {
+      display: flex;
+      overflow: hidden;
+      flex-grow: 1;
     }
     
     .navbar a {
-      float: left;
       color: white;
       text-align: center;
       padding: 18px 20px;
@@ -34,6 +41,8 @@
       font-size: 18px;
       transition: background-color 0.3s, color 0.3s;
       border-radius: 4px;
+      white-space: nowrap; /* Prevent wrapping */
+      display: inline-block;
     }
     
     .navbar a:hover {
@@ -43,12 +52,11 @@
 
     /* Dropdown styles */
     .dropdown {
-      float: left;
-      overflow: hidden;
+      position: relative;
       display: none; /* Hidden by default */
     }
 
-    .dropdown .dropbtn {
+    .dropbtn {
       color: white;
       padding: 18px 20px;
       background-color: inherit;
@@ -60,6 +68,7 @@
       cursor: pointer;
       transition: background-color 0.3s, color 0.3s;
       border-radius: 4px;
+      white-space: nowrap;
     }
 
     .dropdown:hover .dropbtn {
@@ -69,6 +78,7 @@
     .dropdown-content {
       display: none;
       position: absolute;
+      right: 0;
       background-color: #111;
       min-width: 160px;
       box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
@@ -77,7 +87,6 @@
     }
 
     .dropdown-content a {
-      float: none;
       color: white;
       padding: 12px 16px;
       text-decoration: none;
@@ -129,6 +138,7 @@
 </head>
 <body>
 <div class="navbar" id="nav">
+  <div class="navbar-links" id="navLinks"></div>
   <div class="dropdown" id="moreDropdown">
     <button class="dropbtn">More</button>
     <div class="dropdown-content" id="dropdownContent"></div>
@@ -139,34 +149,36 @@
     
     function checkOverflow() {
       const nav = document.getElementById('nav');
+      const navLinks = document.getElementById('navLinks');
       const dropdown = document.getElementById('moreDropdown');
       const dropdownContent = document.getElementById('dropdownContent');
-      const navLinks = nav.getElementsByTagName('a');
+      const links = Array.from(navLinks.getElementsByTagName('a'));
       
       // Reset dropdown content
       dropdownContent.innerHTML = '';
       dropdown.style.display = 'none';
       
       // Show all links initially
-      Array.from(navLinks).forEach(link => {
-        link.style.display = 'block';
+      links.forEach(link => {
+        link.style.display = 'inline-block';
       });
       
-      // Check if navbar overflows
-      const navRect = nav.getBoundingClientRect();
-      const links = Array.from(navLinks);
+      const navWidth = nav.offsetWidth - dropdown.offsetWidth - 40; // Leave space for More dropdown
+      let currentWidth = 0;
       
-      for (let i = links.length - 1; i >= 0; i--) {
+      for (let i = 0; i < links.length; i++) {
         const link = links[i];
-        const linkRect = link.getBoundingClientRect();
+        currentWidth += link.offsetWidth;
         
-        if (linkRect.right > navRect.right - 100) { // Leave space for More dropdown
-          // Move to dropdown
-          link.style.display = 'none';
-          dropdownContent.insertAdjacentHTML('afterbegin', 
-            `<a href="${link.href}">${link.textContent}</a>`);
-          dropdown.style.display = 'block';
-        } else {
+        if (currentWidth > navWidth) {
+          // Move this and all remaining links to dropdown
+          const remainingLinks = links.slice(i);
+          remainingLinks.forEach(link => {
+            link.style.display = 'none';
+            dropdownContent.insertAdjacentHTML('beforeend',
+              `<a href="${link.href}">${link.textContent}</a>`);
+          });
+          dropdown.style.display = 'inline-block';
           break;
         }
       }
@@ -180,7 +192,7 @@
           if(line.trim()) {
             const [name, url] = line.split('|');
             const newUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-            document.getElementById('nav').insertAdjacentHTML('beforeend',
+            document.getElementById('navLinks').insertAdjacentHTML('beforeend',
               `<a href="${newUrl}">${name}</a>`);
           }
         });
