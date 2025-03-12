@@ -1,6 +1,7 @@
 Home|/
+Games|/error/development
+Proxies|/error/development
 Gadgets|/Gadgets
-Proxies|/error/development/
 Blog|/Blog
 Partners|/Partners
 Events|/error/development
