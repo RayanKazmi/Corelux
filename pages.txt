@@ -1,5 +1,5 @@
 Home|/
-Cool Gadgets|/Gadgets
+Gadgets|/Gadgets
 Proxies|/error/development/
 Blog|/Blog
 Partners|/error/development
