@@ -1,9 +1,36 @@
-# Security Policy
-At corelux we are all human and being human comes with the draw backs of well being human! So if you spot a security breach with-in our code on any of the platforms we use check out the section below to see how to report it!
+# The Corelux Security Policy
 
-## Reporting a Vulnerability
-To report a vulnerabillity within our code you need to...
-1. Go to our [github repo.](github.com/rayankazmi/corelux)
-2. Click on the issues tab in the top left corner or click on the [this](github.com/rayankazmi/corelux/issues) text.
-3. Navigate over to the top right and click on the button that says "New issue".
-4. You will now see 2 buttons pop up on to your screen click the button that says "Blank Issue"
+## Reporting Potential Security Issues
+
+If you have encountered a potential security vulnerability in our work weather its,
+please report it to us at <corelux.unblocking@gmail.com>. We will work with you to
+verify the vulnerability and patch it.
+
+When reporting issues, please provide the following information:
+
+- Component(s) affected
+- A description indicating how to reproduce the issue
+- A summary of the security vulnerability and impact
+
+We request that you contact us via the email address above and give the
+project contributors a chance to resolve the vulnerability and issue a new
+release prior to any public exposure; this helps protect the project's
+users, and provides them with a chance to upgrade and/or update in order to
+protect their applications.
+
+For sensitive email communications, please use
+[our PGP key](https://github.com/RayanKazmi/Corelux/blob/Development/corelux.asc).
+
+## Policy
+
+If we verify a reported security vulnerability, we will do the following things:
+
+- We will patch the current release branch, as well as the immediate prior minor
+  release branch.
+
+- After patching the release branches, we will immediately issue new security
+  fix releases for each patched release branch.
+
+- A security advisory will be released on the project website detailing the
+  vulnerability, as well as recommendations for end-users to protect themselves.
+  Security advisories will be listed at https://corelux-unblocking.com and https://corelux.netlify.app/.
