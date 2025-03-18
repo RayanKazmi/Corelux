@@ -14,7 +14,7 @@ If you have any issues with the website please let us know about them by visting
 [cc-by-nc-nd-image]: https://licensebuttons.net/l/by-nc-nd/4.0/88x31.png
 
 ## Code of Conduct
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](code_of_conduct.md)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 Corelux Unblocking is a proud adopter of the Contributor Covenant, which is a code of conduct focused on making sure that communitys are free from things like sexualized language, insulting or derogatory comments, public or private harassment, and more. To view our code of conduct you can click on the code of conduct tab on this section of the repo or go to https://github.com/RayanKazmi/Corelux/blob/main/CODE_OF_CONDUCT.md
 
