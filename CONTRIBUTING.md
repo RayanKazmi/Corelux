@@ -13,7 +13,7 @@ Corelux Unblocking, </i>
 ## How to Contribute | Members
 1. Fork our [GitHub repo.](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)
 2. Make your changes on the forked repo.
-3. Make sure that your changes comply with our code of conduct, contributing policy, and securty policy.
+3. Make sure that your changes comply with our code of conduct, contributing policy, and security policy.
 4. Make a pull request from your [forked repo.](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork) to our repo. <br>
   4a. If the PR fixs a then issue please include "[closing keywords](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue)".
 5. Your done.
