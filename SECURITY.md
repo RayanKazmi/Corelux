@@ -2,7 +2,7 @@
 
 ## Reporting Potential Security Issues
 
-If you have encountered a potential security vulnerability in our work weather its,
+If you have encountered a potential security vulnerability in our work whether its on our HTML site or another platform,
 please report it to us at <corelux.unblocking@gmail.com>. We will work with you to
 verify the vulnerability and patch it.
 
