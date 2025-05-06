@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="icon" href="../../favicon.ico">
+<title>Bouncing Ball</title>
+<style>
+body {
+  overflow: hidden;
+  margin: 0;
+  background-color: #f0f0f0;
+  cursor: default;
+}
+
+#ball {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: blue;
+  cursor: grab;
+}
+
+#ball.dragging {
+    cursor: grabbing;
+}
+</style>
+</head>
+<body>
+
+<div id="ball"></div>
+
+<script>
+const ball = document.getElementById('ball');
+let x = window.innerWidth / 2;
+let y = window.innerHeight / 2;
+let dx = 0;
+let dy = 0;
+let isDragging = false;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
+let lastMouseX = 0;
+let lastMouseY = 0;
+let prevMouseX = 0;
+let prevMouseY = 0;
+const friction = 1;
+const gravity = 0;
+const bounce = 1;
+
+function updateBallPosition() {
+    if (!isDragging) {
+        dy += gravity;
+        dx *= friction;
+        dy *= friction;
+
+        x += dx;
+        y += dy;
+
+        if (x + 50 > window.innerWidth) {
+            x = window.innerWidth - 50;
+            dx = -dx * bounce;
+        } else if (x < 0) {
+            x = 0;
+            dx = -dx * bounce;
+        }
+
+        if (y + 50 > window.innerHeight) {
+            y = window.innerHeight - 50;
+            dy = -dy * bounce;
+        } else if (y < 0) {
+            y = 0;
+            dy = -dy * bounce;
+        }
+
+        ball.style.left = x + 'px';
+        ball.style.top = y + 'px';
+    }
+
+    requestAnimationFrame(updateBallPosition);
+}
+
+ball.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    ball.classList.add('dragging');
+    dragOffsetX = e.clientX - x;
+    dragOffsetY = e.clientY - y;
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
+    prevMouseX = e.clientX;
+    prevMouseY = e.clientY;
+});
+
+window.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+        x = e.clientX - dragOffsetX;
+        y = e.clientY - dragOffsetY;
+
+        ball.style.left = x + 'px';
+        ball.style.top = y + 'px';
+
+        prevMouseX = lastMouseX;
+        prevMouseY = lastMouseY;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+    }
+});
+
+window.addEventListener('mouseup', (e) => {
+    if (isDragging) {
+        isDragging = false;
+        ball.classList.remove('dragging');
+
+        // Calculate velocity based on the *change* in mouse position
+        dx = lastMouseX - prevMouseX;
+        dy = lastMouseY - prevMouseY;
+
+        lastMouseX = 0;
+        lastMouseY = 0;
+        prevMouseX = 0;
+        prevMouseY = 0;
+    }
+});
+window.addEventListener("blur", () => {
+    if (isDragging) {
+        isDragging = false;
+        ball.classList.remove('dragging');
+        lastMouseX = 0;
+        lastMouseY = 0;
+        prevMouseX = 0;
+        prevMouseY = 0;
+    }
+})
+
+ball.style.left = x + 'px';
+ball.style.top = y + 'px';
+updateBallPosition();
+
+</script>
+
+</body>
+</html>
