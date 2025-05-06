@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="icon" href="../../favicon.ico">
+<title>Better Bouncing Ball</title>
+<style>
+body {
+  overflow: hidden;
+  margin: 0;
+  background-color: #f0f0f0;
+  cursor: default;
+}
+
+#ball {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: blue;
+  cursor: grab;
+}
+
+#ball.dragging {
+    cursor: grabbing;
+}
+
+.force-arrow {
+  position: absolute;
+  width: 2px;
+  background-color: red;
+  transform-origin: top center;
+}
+</style>
+</head>
+<body>
+
+<div id="ball"></div>
+<div id="arrow-gravity" class="force-arrow"></div>
+<div id="arrow-friction" class="force-arrow"></div>
+<div id="arrow-air-friction" class="force-arrow"></div>
+<div id="arrow-motion" class="force-arrow"></div>
+
+<script>
+const ball = document.getElementById('ball');
+const arrowGravity = document.getElementById('arrow-gravity');
+const arrowFriction = document.getElementById('arrow-friction');
+const arrowAirFriction = document.getElementById('arrow-air-friction');
+const arrowMotion = document.getElementById('arrow-motion');
+
+let x = window.innerWidth / 2;
+let y = window.innerHeight / 2;
+let dx = 0;
+let dy = 0;
+let isDragging = false;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
+let lastMouseX = 0;
+let lastMouseY = 0;
+let prevMouseX = 0;
+let prevMouseY = 0;
+
+const gravity = 0.3;
+const groundFriction = 0.9; // Friction when the ball is on the ground
+const airFriction = 0.99; // Friction when the ball is in the air
+const bounce = 0.8;
+
+function updateForceArrow(arrow, x, y, angle, length) {
+    arrow.style.left = x + 'px';
+    arrow.style.top = y + 'px';
+    arrow.style.height = length + 'px';
+    arrow.style.transform = `rotate(${angle}rad)`;
+}
+
+function showForceArrows() {
+    // Gravity arrow
+    updateForceArrow(arrowGravity, x + 25, y + 25, Math.PI / 2, gravity * 50);
+
+    // Friction arrow (only applies when the ball is on the ground)
+    const frictionForce = (y + 50 >= window.innerHeight) ? (dx * groundFriction) : 0;
+    updateForceArrow(arrowFriction, x + 25, y + 25, Math.PI, Math.abs(frictionForce * 50));
+
+    // Air friction arrow
+    const airFrictionForceX = -dx * (1 - airFriction);
+    const airFrictionForceY = -dy * (1 - airFriction);
+    const airFrictionMagnitude = Math.sqrt(airFrictionForceX ** 2 + airFrictionForceY ** 2);
+    const airFrictionAngle = Math.atan2(airFrictionForceY, airFrictionForceX);
+    updateForceArrow(arrowAirFriction, x + 25, y + 25, airFrictionAngle, airFrictionMagnitude * 50);
+
+    // Motion arrow
+    const motionMagnitude = Math.sqrt(dx ** 2 + dy ** 2);
+    const motionAngle = Math.atan2(dy, dx);
+    updateForceArrow(arrowMotion, x + 25, y + 25, motionAngle, motionMagnitude * 50);
+}
+
+function updateBallPosition() {
+    if (!isDragging) {
+        dy += gravity;
+        
+        // Apply air friction
+        dx *= airFriction;
+        dy *= airFriction;
+
+        x += dx;
+        y += dy;
+
+        // Handle collisions with walls
+        if (x + 50 > window.innerWidth) {
+            x = window.innerWidth - 50;
+            dx = -dx * bounce;
+        } else if (x < 0) {
+            x = 0;
+            dx = -dx * bounce;
+        }
+
+        if (y + 50 > window.innerHeight) {
+            y = window.innerHeight - 50;
+            dy = -dy * bounce;
+            dx *= groundFriction; // Apply ground friction only when on the ground
+        } else if (y < 0) {
+            y = 0;
+            dy = -dy * bounce;
+        }
+
+        ball.style.left = x + 'px';
+        ball.style.top = y + 'px';
+    }
+
+    showForceArrows();
+    requestAnimationFrame(updateBallPosition);
+}
+
+ball.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    ball.classList.add('dragging');
+    dragOffsetX = e.clientX - x;
+    dragOffsetY = e.clientY - y;
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
+    prevMouseX = e.clientX;
+    prevMouseY = e.clientY;
+});
+
+window.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+        x = e.clientX - dragOffsetX;
+        y = e.clientY - dragOffsetY;
+
+        ball.style.left = x + 'px';
+        ball.style.top = y + 'px';
+
+        prevMouseX = lastMouseX;
+        prevMouseY = lastMouseY;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+    }
+});
+
+window.addEventListener('mouseup', (e) => {
+    if (isDragging) {
+        isDragging = false;
+        ball.classList.remove('dragging');
+
+        // Calculate velocity based on the *change* in mouse position
+        dx = lastMouseX - prevMouseX;
+        dy = lastMouseY - prevMouseY;
+
+        lastMouseX = 0;
+        lastMouseY = 0;
+        prevMouseX = 0;
+        prevMouseY = 0;
+    }
+});
+
+window.addEventListener("blur", () => {
+    if (isDragging) {
+        isDragging = false;
+        ball.classList.remove('dragging');
+        lastMouseX = 0;
+        lastMouseY = 0;
+        prevMouseX = 0;
+        prevMouseY = 0;
+    }
+});
+
+ball.style.left = x + 'px';
+ball.style.top = y + 'px';
+updateBallPosition();
+
+</script>
+
+</body>
+</html>
