@@ -2,7 +2,7 @@
 <html>
 <head>
 <link rel="icon" href="../../favicon.ico">
-<title>Better Bouncing Ball</title>
+<title>Bouncing Ball</title>
 <style>
 body {
   overflow: hidden;
@@ -27,8 +27,23 @@ body {
 .force-arrow {
   position: absolute;
   width: 2px;
-  background-color: red;
   transform-origin: top center;
+}
+
+#arrow-gravity {
+  background-color: red;
+}
+
+#arrow-friction {
+  background-color: green;
+}
+
+#arrow-air-friction {
+  background-color: orange;
+}
+
+#arrow-motion {
+  background-color: purple;
 }
 </style>
 </head>
@@ -64,38 +79,41 @@ const groundFriction = 0.9; // Friction when the ball is on the ground
 const airFriction = 0.99; // Friction when the ball is in the air
 const bounce = 0.8;
 
-function updateForceArrow(arrow, x, y, angle, length) {
-    arrow.style.left = x + 'px';
-    arrow.style.top = y + 'px';
+function updateForceArrow(arrow, startX, startY, angle, length) {
+    arrow.style.left = startX + 'px';
+    arrow.style.top = startY + 'px';
     arrow.style.height = length + 'px';
     arrow.style.transform = `rotate(${angle}rad)`;
 }
 
 function showForceArrows() {
     // Gravity arrow
-    updateForceArrow(arrowGravity, x + 25, y + 25, Math.PI / 2, gravity * 50);
+    const gravityLength = gravity * 100; // Scale for visibility
+    updateForceArrow(arrowGravity, x + 25, y + 25, Math.PI / 2, gravityLength);
 
     // Friction arrow (only applies when the ball is on the ground)
-    const frictionForce = (y + 50 >= window.innerHeight) ? (dx * groundFriction) : 0;
-    updateForceArrow(arrowFriction, x + 25, y + 25, Math.PI, Math.abs(frictionForce * 50));
+    const frictionForce = (y + 50 >= window.innerHeight && Math.abs(dx) > 0.1) ? -dx * groundFriction : 0;
+    const frictionLength = Math.abs(frictionForce * 100);
+    const frictionAngle = dx > 0 ? Math.PI : 0; // Opposite direction of motion on ground
+    updateForceArrow(arrowFriction, x + 25, y + 50, frictionAngle, frictionLength);
 
     // Air friction arrow
     const airFrictionForceX = -dx * (1 - airFriction);
     const airFrictionForceY = -dy * (1 - airFriction);
     const airFrictionMagnitude = Math.sqrt(airFrictionForceX ** 2 + airFrictionForceY ** 2);
     const airFrictionAngle = Math.atan2(airFrictionForceY, airFrictionForceX);
-    updateForceArrow(arrowAirFriction, x + 25, y + 25, airFrictionAngle, airFrictionMagnitude * 50);
+    updateForceArrow(arrowAirFriction, x + 25, y + 25, airFrictionAngle, airFrictionMagnitude * 100);
 
     // Motion arrow
     const motionMagnitude = Math.sqrt(dx ** 2 + dy ** 2);
     const motionAngle = Math.atan2(dy, dx);
-    updateForceArrow(arrowMotion, x + 25, y + 25, motionAngle, motionMagnitude * 50);
+    updateForceArrow(arrowMotion, x + 25, y + 25, motionAngle, motionMagnitude * 100);
 }
 
 function updateBallPosition() {
     if (!isDragging) {
         dy += gravity;
-        
+
         // Apply air friction
         dx *= airFriction;
         dy *= airFriction;
