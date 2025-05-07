@@ -2,13 +2,73 @@
 <html>
 <head>
 <link rel="icon" href="../../favicon.ico">
-<title>Bouncing Ball</title>
+<title>Better Bounce Ball</title>
 <style>
 body {
   overflow: hidden;
   margin: 0;
   background-color: #f0f0f0;
   cursor: default;
+}
+
+#controls {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  font-family: Arial, sans-serif;
+  z-index: 1000;
+  transition: transform 0.3s ease;
+}
+
+#controls.hidden {
+  transform: translateY(calc(100% - 40px));
+}
+
+.controls-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.controls-header h3 {
+  margin: 0;
+}
+
+.toggle-arrow {
+  transition: transform 0.3s ease;
+}
+
+#controls.hidden .toggle-arrow {
+  transform: rotate(180deg);
+}
+
+.slider-container {
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+}
+
+.slider-container label {
+  width: 120px;
+  margin-right: 10px;
+}
+
+.slider-container input[type="range"] {
+  width: 200px;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+
+.slider-container input[type="text"] {
+  width: 70px;
+  padding: 2px 5px;
 }
 
 #ball {
@@ -18,6 +78,19 @@ body {
   border-radius: 50%;
   background-color: blue;
   cursor: grab;
+  transform-origin: center center;
+}
+
+#ball::before {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: red;
+  border-radius: 50%;
+  left: 21px;
+  top: 5px;
+  transform-origin: center center;
 }
 
 #ball.dragging {
@@ -25,47 +98,148 @@ body {
 }
 
 .force-arrow {
-  position: absolute;
-  width: 2px;
-  transform-origin: top center;
+    position: absolute;
+    height: 3px;
+    transform-origin: left center;
+    pointer-events: none;
 }
 
-#arrow-gravity {
-  background-color: red;
+.gravity-arrow {
+    background-color: red;
 }
 
-#arrow-friction {
-  background-color: green;
+.friction-arrow {
+    background-color: green;
 }
 
-#arrow-air-friction {
-  background-color: orange;
+.air-friction-arrow {
+    background-color: purple;
 }
 
-#arrow-motion {
-  background-color: purple;
+.motion-arrow {
+    background-color: orange;
+}
+
+.arrow-label {
+    position: absolute;
+    font-size: 12px;
+    color: black;
+    white-space: nowrap;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.force-value {
+    font-size: 10px;
+    color: #666;
+    margin-top: 2px;
+}
+
+#legend {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  font-family: Arial, sans-serif;
+  z-index: 1000;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin: 5px 0;
+}
+
+.legend-color {
+  width: 20px;
+  height: 3px;
+  margin-right: 10px;
+}
+
+#pauseButton {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  z-index: 1000;
+}
+
+#pauseButton:hover {
+  background-color: #45a049;
 }
 </style>
 </head>
 <body>
 
 <div id="ball"></div>
-<div id="arrow-gravity" class="force-arrow"></div>
-<div id="arrow-friction" class="force-arrow"></div>
-<div id="arrow-air-friction" class="force-arrow"></div>
-<div id="arrow-motion" class="force-arrow"></div>
+
+<div id="legend">
+  <div class="legend-item">
+    <div class="legend-color" style="background-color: red;"></div>
+    <span>Gravity: <span id="gravityValue">0.000</span></span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-color" style="background-color: green;"></div>
+    <span>Ground Friction: <span id="frictionValue">0.000</span></span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-color" style="background-color: purple;"></div>
+    <span>Air Friction: <span id="airFrictionValue">0.000</span></span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-color" style="background-color: orange;"></div>
+    <span>Motion: <span id="motionValue">0.000</span></span>
+  </div>
+</div>
+
+<div id="controls">
+  <div class="controls-header">
+    <h3>Controls</h3>
+    <span class="toggle-arrow">▼</span>
+  </div>
+  <div class="slider-container">
+    <label for="gravitySlider">Gravity:</label>
+    <input type="range" id="gravitySlider" min="-1" max="1" step="0.01" value="0.3">
+    <input type="text" id="gravityNumber" pattern="[0-9]*\.?[0-9]*" value="0.3">
+  </div>
+  <div class="slider-container">
+    <label for="airFrictionSlider">Air Friction:</label>
+    <input type="range" id="airFrictionSlider" min="-1" max="1" step="0.01" value="0.005">
+    <input type="text" id="airFrictionNumber" pattern="[0-9]*\.?[0-9]*" value="0.005">
+  </div>
+  <div class="slider-container">
+    <label for="groundFrictionSlider">Ground Friction:</label>
+    <input type="range" id="groundFrictionSlider" min="-1" max="1" step="0.01" value="0.02">
+    <input type="text" id="groundFrictionNumber" pattern="[0-9]*\.?[0-9]*" value="0.02">
+  </div>
+  <div class="slider-container">
+    <label for="bounceSlider">Bounce:</label>
+    <input type="range" id="bounceSlider" min="0" max="2" step="0.01" value="0.8">
+    <input type="text" id="bounceNumber" pattern="[0-9]*\.?[0-9]*" value="0.8">
+  </div>
+</div>
+
+<button id="pauseButton">Pause</button>
 
 <script>
 const ball = document.getElementById('ball');
-const arrowGravity = document.getElementById('arrow-gravity');
-const arrowFriction = document.getElementById('arrow-friction');
-const arrowAirFriction = document.getElementById('arrow-air-friction');
-const arrowMotion = document.getElementById('arrow-motion');
-
 let x = window.innerWidth / 2;
 let y = window.innerHeight / 2;
 let dx = 0;
 let dy = 0;
+let rotation = 0;
 let isDragging = false;
 let dragOffsetX = 0;
 let dragOffsetY = 0;
@@ -73,79 +247,232 @@ let lastMouseX = 0;
 let lastMouseY = 0;
 let prevMouseX = 0;
 let prevMouseY = 0;
+let isPaused = false;
+const FORCE_THRESHOLD = 0.0001;
+const VELOCITY_THRESHOLD = 0.01;
 
-const gravity = 0.3;
-const groundFriction = 0.9; // Friction when the ball is on the ground
-const airFriction = 0.99; // Friction when the ball is in the air
-const bounce = 0.8;
+let gravity = 0.3;
+let airFriction = 0.005;
+let groundFriction = 0.02;
+let bounce = 0.8;
+const BALL_CIRCUMFERENCE = 50 * Math.PI;
 
-function updateForceArrow(arrow, startX, startY, angle, length) {
-    arrow.style.left = startX + 'px';
-    arrow.style.top = startY + 'px';
-    arrow.style.height = length + 'px';
-    arrow.style.transform = `rotate(${angle}rad)`;
+const FORCE_SCALE = 200;
+
+const gravityValueElement = document.getElementById('gravityValue');
+const frictionValueElement = document.getElementById('frictionValue');
+const airFrictionValueElement = document.getElementById('airFrictionValue');
+const motionValueElement = document.getElementById('motionValue');
+const pauseButton = document.getElementById('pauseButton');
+const controlsPanel = document.getElementById('controls');
+const controlsHeader = document.querySelector('.controls-header');
+
+controlsHeader.addEventListener('click', () => {
+    controlsPanel.classList.toggle('hidden');
+});
+
+const gravitySlider = document.getElementById('gravitySlider');
+const airFrictionSlider = document.getElementById('airFrictionSlider');
+const groundFrictionSlider = document.getElementById('groundFrictionSlider');
+const bounceSlider = document.getElementById('bounceSlider');
+
+const gravityNumber = document.getElementById('gravityNumber');
+const airFrictionNumber = document.getElementById('airFrictionNumber');
+const groundFrictionNumber = document.getElementById('groundFrictionNumber');
+const bounceNumber = document.getElementById('bounceNumber');
+
+function syncInputs(slider, number, callback) {
+    slider.oninput = () => {
+        let value = parseFloat(slider.value);
+        if (Math.abs(value) < 0.1 && slider.id !== 'bounceSlider') {
+            value = 0;
+            slider.value = "0";
+        }
+        number.value = value;
+        callback(value);
+    };
+
+    number.oninput = number.onchange = () => {
+        let value = parseFloat(number.value);
+        if (isNaN(value)) return;
+        
+        if (value >= parseFloat(slider.min) && value <= parseFloat(slider.max)) {
+            slider.value = value;
+        }
+        
+        callback(value);
+    };
 }
 
-function showForceArrows() {
-    // Gravity arrow
-    const gravityLength = gravity * 100; // Scale for visibility
-    updateForceArrow(arrowGravity, x + 25, y + 25, Math.PI / 2, gravityLength);
+syncInputs(gravitySlider, gravityNumber, value => gravity = value);
+syncInputs(airFrictionSlider, airFrictionNumber, value => airFriction = value);
+syncInputs(groundFrictionSlider, groundFrictionNumber, value => groundFriction = value);
+syncInputs(bounceSlider, bounceNumber, value => bounce = value);
 
-    // Friction arrow (only applies when the ball is on the ground)
-    const frictionForce = (y + 50 >= window.innerHeight && Math.abs(dx) > 0.1) ? -dx * groundFriction : 0;
-    const frictionLength = Math.abs(frictionForce * 100);
-    const frictionAngle = dx > 0 ? Math.PI : 0; // Opposite direction of motion on ground
-    updateForceArrow(arrowFriction, x + 25, y + 50, frictionAngle, frictionLength);
+const createArrow = (className) => {
+    const arrow = document.createElement('div');
+    arrow.className = `force-arrow ${className}`;
+    document.body.appendChild(arrow);
+    
+    const labelContainer = document.createElement('div');
+    labelContainer.className = 'arrow-label';
+    
+    const label = document.createElement('div');
+    labelContainer.appendChild(label);
+    
+    const value = document.createElement('div');
+    value.className = 'force-value';
+    labelContainer.appendChild(value);
+    
+    document.body.appendChild(labelContainer);
+    
+    return { arrow, labelContainer, label, value };
+};
 
-    // Air friction arrow
-    const airFrictionForceX = -dx * (1 - airFriction);
-    const airFrictionForceY = -dy * (1 - airFriction);
-    const airFrictionMagnitude = Math.sqrt(airFrictionForceX ** 2 + airFrictionForceY ** 2);
-    const airFrictionAngle = Math.atan2(airFrictionForceY, airFrictionForceX);
-    updateForceArrow(arrowAirFriction, x + 25, y + 25, airFrictionAngle, airFrictionMagnitude * 100);
+const { arrow: gravityArrow, labelContainer: gravityLabelContainer, label: gravityLabel, value: gravityValue } = createArrow('gravity-arrow');
+const { arrow: frictionArrow, labelContainer: frictionLabelContainer, label: frictionLabel, value: frictionValue } = createArrow('friction-arrow');
+const { arrow: airFrictionArrow, labelContainer: airFrictionLabelContainer, label: airFrictionLabel, value: airFrictionValue } = createArrow('air-friction-arrow');
+const { arrow: motionArrow, labelContainer: motionLabelContainer, label: motionLabel, value: motionValue } = createArrow('motion-arrow');
 
-    // Motion arrow
-    const motionMagnitude = Math.sqrt(dx ** 2 + dy ** 2);
-    const motionAngle = Math.atan2(dy, dx);
-    updateForceArrow(arrowMotion, x + 25, y + 25, motionAngle, motionMagnitude * 100);
+function formatForceValue(value) {
+    return value.toFixed(3);
+}
+
+function updateArrow(arrow, labelContainer, label, valueElement, startX, startY, force, angle, text) {
+    if (Math.abs(force) < FORCE_THRESHOLD) {
+        force = 0;
+        arrow.style.display = 'none';
+        labelContainer.style.display = 'none';
+        return 0;
+    }
+    
+    arrow.style.display = 'block';
+    labelContainer.style.display = 'block';
+    
+    const scaledLength = Math.min(300, force * FORCE_SCALE);
+    
+    arrow.style.left = startX + 25 + 'px';
+    arrow.style.top = startY + 25 + 'px';
+    arrow.style.width = scaledLength + 'px';
+    arrow.style.transform = `rotate(${angle}deg)`;
+    
+    const labelX = startX + 25 + (scaledLength / 2) * Math.cos(angle * Math.PI / 180);
+    const labelY = startY + 25 + (scaledLength / 2) * Math.sin(angle * Math.PI / 180);
+    
+    labelContainer.style.left = labelX + 'px';
+    labelContainer.style.top = labelY - 20 + 'px';
+    label.textContent = text;
+    valueElement.textContent = `Force: ${formatForceValue(force)}`;
+    
+    return force;
+}
+
+function updateBallRotation() {
+    const rotationDelta = (dx / BALL_CIRCUMFERENCE) * 360;
+    rotation = (rotation + rotationDelta) % 360;
+    ball.style.transform = `rotate(${rotation}deg)`;
 }
 
 function updateBallPosition() {
-    if (!isDragging) {
-        dy += gravity;
+    if (!isPaused) {
+        if (!isDragging) {
+            dy += gravity;
+            
+            if (airFriction > 0) {
+                if (airFriction >= 1) {
+                    dx = 0;
+                    dy = 0;
+                } else {
+                    dx *= (1 - airFriction);
+                    dy *= (1 - airFriction);
+                }
+            } else if (airFriction < 0) {
+                dx *= (1 + Math.abs(airFriction));
+                dy *= (1 + Math.abs(airFriction));
+            }
+            
+            if (y + 50 >= window.innerHeight) {
+                if (groundFriction > 0) {
+                    if (groundFriction >= 1) {
+                        dx = 0;
+                    } else {
+                        dx *= (1 - groundFriction);
+                    }
+                } else if (groundFriction < 0) {
+                    dx *= (1 + Math.abs(groundFriction));
+                }
+                
+                if (Math.abs(dy) < VELOCITY_THRESHOLD) {
+                    dy = 0;
+                    y = window.innerHeight - 50;
+                }
+            }
 
-        // Apply air friction
-        dx *= airFriction;
-        dy *= airFriction;
+            x += dx;
+            y += dy;
 
-        x += dx;
-        y += dy;
+            if (x + 50 > window.innerWidth) {
+                x = window.innerWidth - 50;
+                dx = -dx * bounce;
+            } else if (x < 0) {
+                x = 0;
+                dx = -dx * bounce;
+            }
 
-        // Handle collisions with walls
-        if (x + 50 > window.innerWidth) {
-            x = window.innerWidth - 50;
-            dx = -dx * bounce;
-        } else if (x < 0) {
-            x = 0;
-            dx = -dx * bounce;
-        }
+            if (y + 50 > window.innerHeight) {
+                y = window.innerHeight - 50;
+                dy = -dy * bounce;
+            } else if (y < 0) {
+                y = 0;
+                dy = -dy * bounce;
+            }
 
-        if (y + 50 > window.innerHeight) {
-            y = window.innerHeight - 50;
-            dy = -dy * bounce;
-            dx *= groundFriction; // Apply ground friction only when on the ground
-        } else if (y < 0) {
-            y = 0;
-            dy = -dy * bounce;
+            updateBallRotation();
         }
 
         ball.style.left = x + 'px';
         ball.style.top = y + 'px';
     }
 
-    showForceArrows();
-    requestAnimationFrame(updateBallPosition);
+    const gravityForce = updateArrow(gravityArrow, gravityLabelContainer, gravityLabel, gravityValue, 
+                                   x, y, Math.abs(gravity), 90, 'Gravity');
+    gravityValueElement.textContent = formatForceValue(gravityForce);
+    
+    let groundFrictionForce = 0;
+    if (y + 50 >= window.innerHeight && Math.abs(dx) > 0) {
+        const frictionAngle = dx > 0 ? 180 : 0;
+        const frictionMagnitude = Math.abs(dx * groundFriction);
+        groundFrictionForce = updateArrow(frictionArrow, frictionLabelContainer, frictionLabel, frictionValue,
+                                        x, y, frictionMagnitude, frictionAngle, 'Ground Friction');
+    } else {
+        frictionArrow.style.display = 'none';
+        frictionLabelContainer.style.display = 'none';
+        groundFrictionForce = 0;
+    }
+    frictionValueElement.textContent = formatForceValue(groundFrictionForce);
+    
+    const airFrictionMagnitude = Math.sqrt(dx * dx + dy * dy) * Math.abs(airFriction);
+    const airFrictionForce = updateArrow(airFrictionArrow, airFrictionLabelContainer, airFrictionLabel, airFrictionValue,
+                                       x, y, airFrictionMagnitude, Math.atan2(dy, dx) * 180 / Math.PI + 180, 'Air Friction');
+    airFrictionValueElement.textContent = formatForceValue(airFrictionForce);
+    
+    const speed = Math.sqrt(dx * dx + dy * dy);
+    const motionForce = updateArrow(motionArrow, motionLabelContainer, motionLabel, motionValue,
+                                  x, y, speed, Math.atan2(dy, dx) * 180 / Math.PI, 'Motion');
+    motionValueElement.textContent = formatForceValue(motionForce);
+
+    if (!isPaused) {
+        requestAnimationFrame(updateBallPosition);
+    }
 }
+
+pauseButton.addEventListener('click', () => {
+    isPaused = !isPaused;
+    pauseButton.textContent = isPaused ? 'Resume' : 'Pause';
+    if (!isPaused) {
+        requestAnimationFrame(updateBallPosition);
+    }
+});
 
 ball.addEventListener('mousedown', (e) => {
     isDragging = true;
@@ -155,16 +482,21 @@ ball.addEventListener('mousedown', (e) => {
     lastMouseX = e.clientX;
     lastMouseY = e.clientY;
     prevMouseX = e.clientX;
-    prevMouseY = e.clientY;
+    prevMouseY = e.clientX;
 });
 
 window.addEventListener('mousemove', (e) => {
     if (isDragging) {
-        x = e.clientX - dragOffsetX;
-        y = e.clientY - dragOffsetY;
+        const newX = e.clientX - dragOffsetX;
+        const newY = e.clientY - dragOffsetY;
+        
+        dx = e.clientX - lastMouseX;
+        dy = e.clientY - lastMouseY;
+        
+        x = newX;
+        y = newY;
 
-        ball.style.left = x + 'px';
-        ball.style.top = y + 'px';
+        updateBallRotation();
 
         prevMouseX = lastMouseX;
         prevMouseY = lastMouseY;
@@ -178,9 +510,8 @@ window.addEventListener('mouseup', (e) => {
         isDragging = false;
         ball.classList.remove('dragging');
 
-        // Calculate velocity based on the *change* in mouse position
-        dx = lastMouseX - prevMouseX;
-        dy = lastMouseY - prevMouseY;
+        dx = (lastMouseX - prevMouseX);
+        dy = (lastMouseY - prevMouseY);
 
         lastMouseX = 0;
         lastMouseY = 0;
@@ -203,7 +534,6 @@ window.addEventListener("blur", () => {
 ball.style.left = x + 'px';
 ball.style.top = y + 'px';
 updateBallPosition();
-
 </script>
 
 </body>
