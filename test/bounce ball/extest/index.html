@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="author" content="RayanKazmi">
-<meta name="date" content="2025-05-08 18:26:05">
+<meta name="date" content="2025-05-08 20:06:11">
 <link rel="icon" href="../../favicon.ico">
 <title>Better Bounce Ball</title>
 <style>
@@ -11,6 +11,7 @@ body {
   margin: 0;
   background-color: #f0f0f0;
   cursor: default;
+  user-select: none;
 }
 
 #controls {
@@ -74,38 +75,25 @@ body {
   padding: 2px 5px;
 }
 
-#ball, .shape {
+#ball, .spawned-ball {
   position: absolute;
   width: 50px;
   height: 50px;
+  border-radius: 50%;
   cursor: grab;
   transform-origin: center center;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 #ball {
-  border-radius: 50%;
   background-color: blue;
 }
 
-.shape {
+.spawned-ball {
   background-color: purple;
-}
-
-.shape.circle {
-  border-radius: 50%;
-}
-
-.shape.square {
-  border-radius: 0;
-}
-
-.shape.triangle {
-  width: 0;
-  height: 0;
-  background-color: transparent;
-  border-left: 25px solid transparent;
-  border-right: 25px solid transparent;
-  border-bottom: 50px solid purple;
 }
 
 #ball::before {
@@ -118,40 +106,53 @@ body {
   left: 21px;
   top: 5px;
   transform-origin: center center;
+  pointer-events: none;
 }
 
-.dragging {
-    cursor: grabbing;
+#ball.dragging, .spawned-ball.dragging {
+  cursor: grabbing;
 }
 
 .force-arrow {
-    position: absolute;
-    height: 3px;
-    transform-origin: left center;
-    pointer-events: none;
+  position: absolute;
+  height: 3px;
+  transform-origin: left center;
+  pointer-events: none;
 }
 
-.gravity-arrow { background-color: red; }
-.friction-arrow { background-color: green; }
-.air-friction-arrow { background-color: purple; }
-.motion-arrow { background-color: orange; }
+.gravity-arrow {
+  background-color: red;
+}
+
+.friction-arrow {
+  background-color: green;
+}
+
+.air-friction-arrow {
+  background-color: purple;
+}
+
+.motion-arrow {
+  background-color: orange;
+}
 
 .arrow-label {
-    position: absolute;
-    font-size: 12px;
-    color: black;
-    white-space: nowrap;
-    pointer-events: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+  position: absolute;
+  font-size: 12px;
+  color: black;
+  white-space: nowrap;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  user-select: none;
 }
 
 .force-value {
-    font-size: 10px;
-    color: #666;
-    margin-top: 2px;
+  font-size: 10px;
+  color: #666;
+  margin-top: 2px;
 }
 
 #legend {
@@ -164,6 +165,7 @@ body {
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
   font-family: Arial, sans-serif;
   z-index: 1000;
+  user-select: none;
 }
 
 .legend-item {
@@ -178,43 +180,7 @@ body {
   margin-right: 10px;
 }
 
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    right: 0;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1001;
-    border-radius: 5px;
-    overflow: hidden;
-}
-
-.dropdown-content button {
-    width: 100%;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    border: none;
-    background: none;
-    text-align: left;
-    cursor: pointer;
-}
-
-.dropdown-content button:hover {
-    background-color: #f1f1f1;
-}
-
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-#buttonGroup {
+.button-container {
   position: fixed;
   top: 10px;
   right: 10px;
@@ -225,20 +191,57 @@ body {
 
 .control-button {
   padding: 10px 20px;
-  background-color: #4CAF50;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
+  transition: background-color 0.3s;
+  user-select: none;
 }
 
-.control-button:hover {
+#pauseButton {
+  background-color: #4CAF50;
+}
+
+#pauseButton:hover {
   background-color: #45a049;
+}
+
+#spawnButton {
+  background-color: #9C27B0;
+}
+
+#spawnButton:hover {
+  background-color: #7B1FA2;
+}
+
+#resetButton {
+  background-color: #f44336;
+}
+
+#resetButton:hover {
+  background-color: #d32f2f;
+}
+
+* {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+input[type="text"] {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  cursor: text;
 }
 </style>
 </head>
 <body>
+
 <div id="ball"></div>
 
 <div id="legend">
@@ -260,16 +263,10 @@ body {
   </div>
 </div>
 
-<div id="buttonGroup">
-    <div class="dropdown">
-        <button id="spawnButton" class="control-button">Spawn Shape ▼</button>
-        <div class="dropdown-content">
-            <button data-shape="circle">Ball</button>
-            <button data-shape="square">Square</button>
-            <button data-shape="triangle">Triangle</button>
-        </div>
-    </div>
-    <button id="resetButton" class="control-button">Reset</button>
+<div class="button-container">
+  <button id="resetButton" class="control-button">Reset</button>
+  <button id="spawnButton" class="control-button">Spawn Ball</button>
+  <button id="pauseButton" class="control-button">Pause</button>
 </div>
 
 <div id="controls">
@@ -298,11 +295,14 @@ body {
     <input type="text" id="bounceNumber" pattern="[0-9]*\.?[0-9]*" value="0.8">
   </div>
 </div>
+
 <script>
 const ball = document.getElementById('ball');
-let shapes = [];
-let x = window.innerWidth / 2;
-let y = window.innerHeight / 2;
+let spawnedBalls = [];
+const INITIAL_X = window.innerWidth / 2;
+const INITIAL_Y = window.innerHeight / 2;
+let x = INITIAL_X;
+let y = INITIAL_Y;
 let dx = 0;
 let dy = 0;
 let rotation = 0;
@@ -314,211 +314,108 @@ let lastMouseY = 0;
 let prevMouseX = 0;
 let prevMouseY = 0;
 let isPaused = false;
+let currentDraggedBall = null;
 const FORCE_THRESHOLD = 0.0001;
 const VELOCITY_THRESHOLD = 0.01;
+const COLLISION_ELASTICITY = 0.8;
 
-let gravity = 0.3;
-let airFriction = 0.005;
-let groundFriction = 0.02;
-let bounce = 0.8;
+const INITIAL_VALUES = {
+    gravity: 0.3,
+    airFriction: 0.005,
+    groundFriction: 0.02,
+    bounce: 0.8
+};
+
+let gravity = INITIAL_VALUES.gravity;
+let airFriction = INITIAL_VALUES.airFriction;
+let groundFriction = INITIAL_VALUES.groundFriction;
+let bounce = INITIAL_VALUES.bounce;
 const BALL_CIRCUMFERENCE = 50 * Math.PI;
+const BALL_RADIUS = 25;
 
-class Shape {
-    constructor(type, x, y) {
-        this.element = document.createElement('div');
-        this.element.className = `shape ${type}`;
-        this.type = type;
-        this.x = x;
-        this.y = y;
-        this.dx = 0;
-        this.dy = 0;
-        this.rotation = 0;
-        this.angularVelocity = 0;
-        this.isDragging = false;
-        this.width = 50;
-        this.height = 50;
-        this.mass = 1;
-        
-        document.body.appendChild(this.element);
-        this.updatePosition();
-        this.setupEventListeners();
-    }
+function checkCollision(ball1, ball2) {
+    const dx = (ball2.x + BALL_RADIUS) - (ball1.x + BALL_RADIUS);
+    const dy = (ball2.y + BALL_RADIUS) - (ball1.y + BALL_RADIUS);
+    const distance = Math.sqrt(dx * dx + dy * dy);
     
-    updatePosition() {
-        this.element.style.left = this.x + 'px';
-        this.element.style.top = this.y + 'px';
-        this.element.style.transform = `rotate(${this.rotation}deg)`;
+    if (distance < BALL_RADIUS * 2) {
+        const angle = Math.atan2(dy, dx);
+        const sin = Math.sin(angle);
+        const cos = Math.cos(angle);
+
+        // Rotate velocities
+        const vx1 = ball1.dx * cos + ball1.dy * sin;
+        const vy1 = ball1.dy * cos - ball1.dx * sin;
+        const vx2 = ball2.dx * cos + ball2.dy * sin;
+        const vy2 = ball2.dy * cos - ball2.dx * sin;
+
+        // Collision response
+        const v1Final = ((vx1 * (1 - COLLISION_ELASTICITY)) + (2 * COLLISION_ELASTICITY * vx2)) / 2;
+        const v2Final = ((vx2 * (1 - COLLISION_ELASTICITY)) + (2 * COLLISION_ELASTICITY * vx1)) / 2;
+
+        // Rotate velocities back
+        ball1.dx = v1Final * cos - vy1 * sin;
+        ball1.dy = vy1 * cos + v1Final * sin;
+        ball2.dx = v2Final * cos - vy2 * sin;
+        ball2.dy = vy2 * cos + v2Final * sin;
+
+        // Move balls apart to prevent sticking
+        const overlap = (BALL_RADIUS * 2) - distance;
+        const moveX = (overlap * cos) / 2;
+        const moveY = (overlap * sin) / 2;
+
+        ball1.x -= moveX;
+        ball1.y -= moveY;
+        ball2.x += moveX;
+        ball2.y += moveY;
+
+        return true;
     }
-    
-    checkCollision(other) {
-        const dx = (this.x + this.width/2) - (other.x + other.width/2);
-        const dy = (this.y + this.height/2) - (other.y + other.height/2);
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const minDistance = this.width/2 + other.width/2;
-        
-        if (distance < minDistance) {
-            // Collision detected
-            const angle = Math.atan2(dy, dx);
-            const targetX = this.x + Math.cos(angle) * minDistance;
-            const targetY = this.y + Math.sin(angle) * minDistance;
+    return false;
+}
+
+function handleCollisions() {
+    // Check main ball against spawned balls
+    spawnedBalls.forEach(spawnedBall => {
+        if (checkCollision(
+            {x, y, dx, dy},
+            spawnedBall
+        )) {
+            // Update main ball position
+            ball.style.left = x + 'px';
+            ball.style.top = y + 'px';
             
-            // Move shapes apart
-            const moveX = (targetX - other.x) * 0.5;
-            const moveY = (targetY - other.y) * 0.5;
-            
-            this.x += moveX;
-            this.y += moveY;
-            other.x -= moveX;
-            other.y -= moveY;
-            
-            // Calculate new velocities
-            const normalX = dx / distance;
-            const normalY = dy / distance;
-            const relativeVelocityX = this.dx - other.dx;
-            const relativeVelocityY = this.dy - other.dy;
-            const velocityAlongNormal = relativeVelocityX * normalX + relativeVelocityY * normalY;
-            
-            if (velocityAlongNormal > 0) return;
-            
-            const restitution = bounce;
-            const impulseStrength = -(1 + restitution) * velocityAlongNormal;
-            const impulse = impulseStrength / (1/this.mass + 1/other.mass);
-            
-            this.dx += (impulse * normalX) / this.mass;
-            this.dy += (impulse * normalY) / this.mass;
-            other.dx -= (impulse * normalX) / other.mass;
-            other.dy -= (impulse * normalY) / other.mass;
-            
-            // Add rotation based on collision point
-            const rotationImpulse = (dx * other.dy - dy * other.dx) * 0.1;
-            this.angularVelocity += rotationImpulse / this.mass;
-            other.angularVelocity -= rotationImpulse / other.mass;
+            // Update spawned ball position
+            spawnedBall.element.style.left = spawnedBall.x + 'px';
+            spawnedBall.element.style.top = spawnedBall.y + 'px';
         }
-    }
-    
-    setupEventListeners() {
-        this.element.addEventListener('mousedown', (e) => {
-            this.isDragging = true;
-            this.element.classList.add('dragging');
-            this.dragOffsetX = e.clientX - this.x;
-            this.dragOffsetY = e.clientY - this.y;
-            this.dx = 0;
-            this.dy = 0;
-            this.lastMouseX = e.clientX;
-            this.lastMouseY = e.clientY;
-            this.prevMouseX = e.clientX;
-            this.prevMouseY = e.clientY;
-        });
-    }
-    
-    update() {
-        if (!this.isDragging) {
-            this.dy += gravity;
-            
-            if (airFriction > 0) {
-                this.dx *= (1 - airFriction);
-                this.dy *= (1 - airFriction);
-                this.angularVelocity *= (1 - airFriction);
-            }
-            
-            if (this.y + this.height >= window.innerHeight) {
-                if (groundFriction > 0) {
-                    this.dx *= (1 - groundFriction);
-                    this.angularVelocity *= (1 - groundFriction);
-                }
-            }
-            
-            this.x += this.dx;
-            this.y += this.dy;
-            this.rotation += this.angularVelocity;
-            
-            // Boundary checking
-            if (this.x + this.width > window.innerWidth) {
-                this.x = window.innerWidth - this.width;
-                this.dx = -this.dx * bounce;
-                this.angularVelocity *= bounce;
-            } else if (this.x < 0) {
-                this.x = 0;
-                this.dx = -this.dx * bounce;
-                this.angularVelocity *= bounce;
-            }
-            
-            if (this.y + this.height > window.innerHeight) {
-                this.y = window.innerHeight - this.height;
-                this.dy = -this.dy * bounce;
-                this.angularVelocity *= bounce;
-            } else if (this.y < 0) {
-                this.y = 0;
-                this.dy = -this.dy * bounce;
-                this.angularVelocity *= bounce;
+    });
+
+    // Check spawned balls against each other
+    for (let i = 0; i < spawnedBalls.length; i++) {
+        for (let j = i + 1; j < spawnedBalls.length; j++) {
+            if (checkCollision(spawnedBalls[i], spawnedBalls[j])) {
+                spawnedBalls[i].element.style.left = spawnedBalls[i].x + 'px';
+                spawnedBalls[i].element.style.top = spawnedBalls[i].y + 'px';
+                spawnedBalls[j].element.style.left = spawnedBalls[j].x + 'px';
+                spawnedBalls[j].element.style.top = spawnedBalls[j].y + 'px';
             }
         }
-        
-        this.updatePosition();
-    }
-    
-    remove() {
-        this.element.remove();
     }
 }
+
 const gravityValueElement = document.getElementById('gravityValue');
 const frictionValueElement = document.getElementById('frictionValue');
 const airFrictionValueElement = document.getElementById('airFrictionValue');
 const motionValueElement = document.getElementById('motionValue');
 const pauseButton = document.getElementById('pauseButton');
+const spawnButton = document.getElementById('spawnButton');
 const resetButton = document.getElementById('resetButton');
 const controlsPanel = document.getElementById('controls');
 const controlsHeader = document.querySelector('.controls-header');
 
 controlsHeader.addEventListener('click', () => {
     controlsPanel.classList.toggle('hidden');
-});
-
-// Shape spawning from dropdown
-document.querySelectorAll('.dropdown-content button').forEach(button => {
-    button.addEventListener('click', () => {
-        const shapeType = button.dataset.shape;
-        const shape = new Shape(shapeType, 
-            Math.random() * (window.innerWidth - 100) + 50,
-            Math.random() * (window.innerHeight - 100) + 50
-        );
-        shapes.push(shape);
-    });
-});
-
-// Reset button
-resetButton.addEventListener('click', () => {
-    // Remove all shapes
-    shapes.forEach(shape => shape.remove());
-    shapes = [];
-    
-    // Reset ball position and momentum
-    x = window.innerWidth / 2;
-    y = window.innerHeight / 2;
-    dx = 0;
-    dy = 0;
-    rotation = 0;
-    
-    // Reset control values
-    gravity = 0.3;
-    airFriction = 0.005;
-    groundFriction = 0.02;
-    bounce = 0.8;
-    
-    // Update sliders and number inputs
-    gravitySlider.value = gravity;
-    gravityNumber.value = gravity;
-    airFrictionSlider.value = airFriction;
-    airFrictionNumber.value = airFriction;
-    groundFrictionSlider.value = groundFriction;
-    groundFrictionNumber.value = groundFriction;
-    bounceSlider.value = bounce;
-    bounceNumber.value = bounce;
-    
-    // Update ball position
-    ball.style.left = x + 'px';
-    ball.style.top = y + 'px';
-    ball.style.transform = `rotate(${rotation}deg)`;
 });
 
 const gravitySlider = document.getElementById('gravitySlider');
@@ -559,6 +456,38 @@ syncInputs(airFrictionSlider, airFrictionNumber, value => airFriction = value);
 syncInputs(groundFrictionSlider, groundFrictionNumber, value => groundFriction = value);
 syncInputs(bounceSlider, bounceNumber, value => bounce = value);
 
+function resetSimulation() {
+    x = INITIAL_X;
+    y = INITIAL_Y;
+    dx = 0;
+    dy = 0;
+    rotation = 0;
+    
+    gravity = INITIAL_VALUES.gravity;
+    airFriction = INITIAL_VALUES.airFriction;
+    groundFriction = INITIAL_VALUES.groundFriction;
+    bounce = INITIAL_VALUES.bounce;
+    
+    gravitySlider.value = gravity;
+    airFrictionSlider.value = airFriction;
+    groundFrictionSlider.value = groundFriction;
+    bounceSlider.value = bounce;
+    
+    gravityNumber.value = gravity;
+    airFrictionNumber.value = airFriction;
+    groundFrictionNumber.value = groundFriction;
+    bounceNumber.value = bounce;
+    
+    spawnedBalls.forEach(ball => {
+        ball.element.remove();
+    });
+    spawnedBalls = [];
+    
+    ball.style.left = x + 'px';
+    ball.style.top = y + 'px';
+    ball.style.transform = `rotate(${rotation}deg)`;
+}
+
 const createArrow = (className) => {
     const arrow = document.createElement('div');
     arrow.className = `force-arrow ${className}`;
@@ -583,6 +512,7 @@ const { arrow: gravityArrow, labelContainer: gravityLabelContainer, label: gravi
 const { arrow: frictionArrow, labelContainer: frictionLabelContainer, label: frictionLabel, value: frictionValue } = createArrow('friction-arrow');
 const { arrow: airFrictionArrow, labelContainer: airFrictionLabelContainer, label: airFrictionLabel, value: airFrictionValue } = createArrow('air-friction-arrow');
 const { arrow: motionArrow, labelContainer: motionLabelContainer, label: motionLabel, value: motionValue } = createArrow('motion-arrow');
+
 function formatForceValue(value) {
     return value.toFixed(3);
 }
@@ -616,10 +546,110 @@ function updateArrow(arrow, labelContainer, label, valueElement, startX, startY,
     return force;
 }
 
-function updateBallRotation() {
-    const rotationDelta = (dx / BALL_CIRCUMFERENCE) * 360;
-    rotation = (rotation + rotationDelta) % 360;
-    ball.style.transform = `rotate(${rotation}deg)`;
+function createSpawnedBall() {
+    const spawnedBall = document.createElement('div');
+    spawnedBall.className = 'spawned-ball';
+    spawnedBall.style.left = INITIAL_X + 'px';
+    spawnedBall.style.top = INITIAL_Y + 'px';
+    document.body.appendChild(spawnedBall);
+    
+    const ballData = {
+        element: spawnedBall,
+        x: INITIAL_X,
+        y: INITIAL_Y,
+        dx: dx * 1.2,
+        dy: dy * 1.2,
+        rotation: 0,
+        isDragging: false,
+        dragOffsetX: 0,
+        dragOffsetY: 0,
+        lastMouseX: 0,
+        lastMouseY: 0,
+        prevMouseX: 0,
+        prevMouseY: 0
+    };
+
+    spawnedBall.addEventListener('mousedown', (e) => {
+        ballData.isDragging = true;
+        spawnedBall.classList.add('dragging');
+        ballData.dx = 0;
+        ballData.dy = 0;
+        ballData.dragOffsetX = e.clientX - ballData.x;
+        ballData.dragOffsetY = e.clientY - ballData.y;
+        ballData.lastMouseX = e.clientX;
+        ballData.lastMouseY = e.clientY;
+        ballData.prevMouseX = e.clientX;
+        ballData.prevMouseY = e.clientY;
+        currentDraggedBall = ballData;
+    });
+    
+    return ballData;
+}
+
+function updateBallRotation(ballObject, element) {
+    const rotationDelta = (ballObject.dx / BALL_CIRCUMFERENCE) * 360;
+    ballObject.rotation = (ballObject.rotation + rotationDelta) % 360;
+    element.style.transform = `rotate(${ballObject.rotation}deg)`;
+}
+
+function updateSpawnedBall(spawnedBall) {
+    if (!isPaused && !spawnedBall.isDragging) {
+        spawnedBall.dy += gravity;
+        
+        if (airFriction > 0) {
+            if (airFriction >= 1) {
+                spawnedBall.dx = 0;
+                spawnedBall.dy = 0;
+            } else {
+                spawnedBall.dx *= (1 - airFriction);
+                spawnedBall.dy *= (1 - airFriction);
+            }
+        } else if (airFriction < 0) {
+            spawnedBall.dx *= (1 + Math.abs(airFriction));
+            spawnedBall.dy *= (1 + Math.abs(airFriction));
+        }
+        
+        if (spawnedBall.y + 50 >= window.innerHeight) {
+            if (groundFriction > 0) {
+                if (groundFriction >= 1) {
+                    spawnedBall.dx = 0;
+                } else {
+                    spawnedBall.dx *= (1 - groundFriction);
+                }
+            } else if (groundFriction < 0) {
+                spawnedBall.dx *= (1 + Math.abs(groundFriction));
+            }
+            
+            if (Math.abs(spawnedBall.dy) < VELOCITY_THRESHOLD) {
+                spawnedBall.dy = 0;
+                spawnedBall.y = window.innerHeight - 50;
+            }
+        }
+
+        spawnedBall.x += spawnedBall.dx;
+        spawnedBall.y += spawnedBall.dy;
+
+        if (spawnedBall.x + 50 > window.innerWidth) {
+            spawnedBall.x = window.innerWidth - 50;
+            spawnedBall.dx = -spawnedBall.dx * bounce;
+        } else if (spawnedBall.x < 0) {
+            spawnedBall.x = 0;
+            spawnedBall.dx = -spawnedBall.dx * bounce;
+        }
+
+        if (spawnedBall.y + 50 > window.innerHeight) {
+            spawnedBall.y = window.innerHeight - 50;
+            spawnedBall.dy = -spawnedBall.dy * bounce;
+        } else if (spawnedBall.y < 0) {
+            spawnedBall.y = 0;
+            spawnedBall.dy = -spawnedBall.dy * bounce;
+        }
+
+        updateBallRotation(spawnedBall, spawnedBall.element);
+        
+        spawnedBall.element.style.left = spawnedBall.x + 'px';
+        spawnedBall.element.style.top = spawnedBall.y + 'px';
+    }
 }
 
 function updateBallPosition() {
@@ -676,39 +706,16 @@ function updateBallPosition() {
                 dy = -dy * bounce;
             }
 
-            updateBallRotation();
+            updateBallRotation({dx, rotation}, ball);
         }
 
         ball.style.left = x + 'px';
         ball.style.top = y + 'px';
         
-        // Check collisions and update shapes
-        const mainBallShape = {
-            x: x,
-            y: y,
-            dx: dx,
-            dy: dy,
-            width: 50,
-            height: 50,
-            mass: 1
-        };
-
-        for (let i = 0; i < shapes.length; i++) {
-            const shape = shapes[i];
-            if (!shape.isDragging) {
-                shape.checkCollision(mainBallShape);
-                dx = mainBallShape.dx;
-                dy = mainBallShape.dy;
-                
-                // Check collisions with other shapes
-                for (let j = i + 1; j < shapes.length; j++) {
-                    if (!shapes[j].isDragging) {
-                        shape.checkCollision(shapes[j]);
-                    }
-                }
-            }
-            shape.update();
-        }
+        spawnedBalls.forEach(updateSpawnedBall);
+        
+        // Handle collisions between all balls
+        handleCollisions();
     }
 
     const gravityForce = updateArrow(gravityArrow, gravityLabelContainer, gravityLabel, gravityValue, 
@@ -743,14 +750,26 @@ function updateBallPosition() {
     }
 }
 
+pauseButton.addEventListener('click', () => {
+    isPaused = !isPaused;
+    pauseButton.textContent = isPaused ? 'Resume' : 'Pause';
+    if (!isPaused) {
+        requestAnimationFrame(updateBallPosition);
+    }
+});
+
+spawnButton.addEventListener('click', () => {
+    const newBall = createSpawnedBall();
+    spawnedBalls.push(newBall);
+});
+
+resetButton.addEventListener('click', resetSimulation);
+
 ball.addEventListener('mousedown', (e) => {
     isDragging = true;
     ball.classList.add('dragging');
-    
-    // Reset velocities to prevent launching glitch
     dx = 0;
     dy = 0;
-    
     dragOffsetX = e.clientX - x;
     dragOffsetY = e.clientY - y;
     lastMouseX = e.clientX;
@@ -770,63 +789,56 @@ window.addEventListener('mousemove', (e) => {
         x = newX;
         y = newY;
 
-        updateBallRotation();
+        updateBallRotation({dx, rotation}, ball);
 
         prevMouseX = lastMouseX;
         prevMouseY = lastMouseY;
         lastMouseX = e.clientX;
         lastMouseY = e.clientY;
+    } else if (currentDraggedBall) {
+        const newX = e.clientX - currentDraggedBall.dragOffsetX;
+        const newY = e.clientY - currentDraggedBall.dragOffsetY;
+        
+        currentDraggedBall.dx = e.clientX - currentDraggedBall.lastMouseX;
+        currentDraggedBall.dy = e.clientY - currentDraggedBall.lastMouseY;
+        
+        currentDraggedBall.x = newX;
+        currentDraggedBall.y = newY;
+
+        updateBallRotation(currentDraggedBall, currentDraggedBall.element);
+
+        currentDraggedBall.prevMouseX = currentDraggedBall.lastMouseX;
+        currentDraggedBall.prevMouseY = currentDraggedBall.lastMouseY;
+        currentDraggedBall.lastMouseX = e.clientX;
+        currentDraggedBall.lastMouseY = e.clientY;
+        
+        currentDraggedBall.element.style.left = currentDraggedBall.x + 'px';
+        currentDraggedBall.element.style.top = currentDraggedBall.y + 'px';
     }
-    
-    // Handle shape dragging
-    shapes.forEach(shape => {
-        if (shape.isDragging) {
-            const newX = e.clientX - shape.dragOffsetX;
-            const newY = e.clientY - shape.dragOffsetY;
-            
-            shape.dx = e.clientX - shape.lastMouseX;
-            shape.dy = e.clientY - shape.lastMouseY;
-            
-            shape.x = newX;
-            shape.y = newY;
-            
-            shape.prevMouseX = shape.lastMouseX;
-            shape.prevMouseY = shape.lastMouseY;
-            shape.lastMouseX = e.clientX;
-            shape.lastMouseY = e.clientY;
-        }
-    });
 });
 
 window.addEventListener('mouseup', (e) => {
     if (isDragging) {
         isDragging = false;
         ball.classList.remove('dragging');
-
         dx = (lastMouseX - prevMouseX);
         dy = (lastMouseY - prevMouseY);
-
         lastMouseX = 0;
         lastMouseY = 0;
         prevMouseX = 0;
         prevMouseY = 0;
     }
-    
-    // Handle shape release
-    shapes.forEach(shape => {
-        if (shape.isDragging) {
-            shape.isDragging = false;
-            shape.element.classList.remove('dragging');
-            
-            shape.dx = (shape.lastMouseX - shape.prevMouseX);
-            shape.dy = (shape.lastMouseY - shape.prevMouseY);
-            
-            shape.lastMouseX = 0;
-            shape.lastMouseY = 0;
-            shape.prevMouseX = 0;
-            shape.prevMouseY = 0;
-        }
-    });
+    if (currentDraggedBall) {
+        currentDraggedBall.isDragging = false;
+        currentDraggedBall.element.classList.remove('dragging');
+        currentDraggedBall.dx = (currentDraggedBall.lastMouseX - currentDraggedBall.prevMouseX);
+        currentDraggedBall.dy = (currentDraggedBall.lastMouseY - currentDraggedBall.prevMouseY);
+        currentDraggedBall.lastMouseX = 0;
+        currentDraggedBall.lastMouseY = 0;
+        currentDraggedBall.prevMouseX = 0;
+        currentDraggedBall.prevMouseY = 0;
+        currentDraggedBall = null;
+    }
 });
 
 window.addEventListener("blur", () => {
@@ -838,18 +850,15 @@ window.addEventListener("blur", () => {
         prevMouseX = 0;
         prevMouseY = 0;
     }
-    
-    // Handle shape blur
-    shapes.forEach(shape => {
-        if (shape.isDragging) {
-            shape.isDragging = false;
-            shape.element.classList.remove('dragging');
-            shape.lastMouseX = 0;
-            shape.lastMouseY = 0;
-            shape.prevMouseX = 0;
-            shape.prevMouseY = 0;
-        }
-    });
+    if (currentDraggedBall) {
+        currentDraggedBall.isDragging = false;
+        currentDraggedBall.element.classList.remove('dragging');
+        currentDraggedBall.lastMouseX = 0;
+        currentDraggedBall.lastMouseY = 0;
+        currentDraggedBall.prevMouseX = 0;
+        currentDraggedBall.prevMouseY = 0;
+        currentDraggedBall = null;
+    }
 });
 
 ball.style.left = x + 'px';
