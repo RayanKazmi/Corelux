@@ -198,7 +198,7 @@
       margin: 0;
       font-family: Arial, sans-serif;
       background-color: black;
-      padding-top: 50px; /* Adjusted for the fixed navbar height */
+      padding-top: 50px;
     }
     
     .content {
@@ -250,7 +250,6 @@
       const dropdownContent = document.getElementById('dropdownContent');
       const links = Array.from(navLinks.getElementsByTagName('a'));
       
-      // Reset dropdown content
       dropdownContent.innerHTML = '';
       dropdown.style.display = 'none';
       
@@ -259,8 +258,7 @@
         link.style.display = 'inline-block';
       });
       
-      // Calculate available width (accounting for padding and More button)
-      const navWidth = nav.offsetWidth - 100; // Account for padding and More button
+      const navWidth = nav.offsetWidth - 100;
       let currentWidth = 0;
       
       for (let i = 0; i < links.length; i++) {
@@ -268,7 +266,6 @@
         currentWidth += link.offsetWidth;
         
         if (currentWidth > navWidth) {
-          // Move this and all remaining links to dropdown
           const remainingLinks = links.slice(i);
           remainingLinks.forEach(link => {
             link.style.display = 'none';
@@ -294,9 +291,7 @@
           }
         });
         
-        // Check overflow after adding links
         checkOverflow();
-        // Recheck on window resize
         window.addEventListener('resize', checkOverflow);
       });
   </script>
