@@ -1,874 +1,861 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="../../favicon.ico">
-    <title>Shapes Physics Simulation</title>
-    <style>
-        /* Reset and Base Styles */
-        body {
-            overflow: hidden;
-            margin: 0;
-            background-color: #f0f0f0;
-            cursor: default;
-            font-family: Arial, sans-serif;
-        }
+<meta name="author" content="RayanKazmi">
+<meta name="date" content="2025-05-08 18:26:05">
+<link rel="icon" href="../../favicon.ico">
+<title>Better Bounce Ball</title>
+<style>
+body {
+  overflow: hidden;
+  margin: 0;
+  background-color: #f0f0f0;
+  cursor: default;
+}
 
-        /* UI Components */
-        .panel {
-            position: fixed;
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
+#controls {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  font-family: Arial, sans-serif;
+  z-index: 1000;
+  transition: transform 0.3s ease;
+}
 
-        /* Controls Panel */
-        #controls {
-            bottom: 10px;
-            left: 10px;
-            transition: transform 0.3s ease;
-        }
+#controls.hidden {
+  transform: translateX(calc(100% - 40px));
+}
 
-        #controls.hidden {
-            transform: translateY(calc(100% - 40px));
-        }
+.controls-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  cursor: pointer;
+  user-select: none;
+}
 
-        .controls-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            cursor: pointer;
-            user-select: none;
-        }
+.controls-header h3 {
+  margin: 0;
+}
 
-        .controls-header h3 {
-            margin: 0;
-        }
+.toggle-arrow {
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
 
-        .toggle-arrow {
-            transition: transform 0.3s ease;
-        }
+#controls.hidden .toggle-arrow {
+  transform: rotate(-90deg);
+}
 
-        #controls.hidden .toggle-arrow {
-            transform: rotate(180deg);
-        }
+.slider-container {
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+}
 
-        /* Sliders */
-        .slider-container {
-            margin: 10px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+.slider-container label {
+  width: 120px;
+  margin-right: 10px;
+}
 
-        .slider-container label {
-            width: 120px;
-        }
+.slider-container input[type="range"] {
+  width: 200px;
+  vertical-align: middle;
+  margin-right: 10px;
+}
 
-        .slider-container input[type="range"] {
-            width: 200px;
-        }
+.slider-container input[type="text"] {
+  width: 70px;
+  padding: 2px 5px;
+}
 
-        .slider-container input[type="text"] {
-            width: 70px;
-            padding: 2px 5px;
-        }
+#ball, .shape {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  cursor: grab;
+  transform-origin: center center;
+}
 
-        /* Shapes */
-        .shape {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            cursor: grab;
-            transform-origin: center bottom;
-        }
+#ball {
+  border-radius: 50%;
+  background-color: blue;
+}
 
-        .shape.dragging {
-            cursor: grabbing;
-        }
+.shape {
+  background-color: purple;
+}
 
-        .shape.main {
-            background-color: #4285f4;
-        }
+.shape.circle {
+  border-radius: 50%;
+}
 
-        .shape.spawned {
-            background-color: #842fd0;
-        }
+.shape.square {
+  border-radius: 0;
+}
 
-        .shape.circle {
-            border-radius: 50%;
-            transform-origin: center center;
-        }
+.shape.triangle {
+  width: 0;
+  height: 0;
+  background-color: transparent;
+  border-left: 25px solid transparent;
+  border-right: 25px solid transparent;
+  border-bottom: 50px solid purple;
+}
 
-        .shape.triangle {
-            width: 0;
-            height: 0;
-            background-color: transparent !important;
-            border-left: 25px solid transparent;
-            border-right: 25px solid transparent;
-            border-bottom: 50px solid #4285f4;
-            transform-origin: center 80%;
-        }
+#ball::before {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: red;
+  border-radius: 50%;
+  left: 21px;
+  top: 5px;
+  transform-origin: center center;
+}
 
-        .shape.triangle.spawned {
-            border-bottom-color: #842fd0;
-        }
+.dragging {
+    cursor: grabbing;
+}
 
-        .shape.trapezoid {
-            width: 50px;
-            height: 0;
-            border-bottom: 50px solid #4285f4;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            background-color: transparent !important;
-            transform-origin: center 75%;
-        }
+.force-arrow {
+    position: absolute;
+    height: 3px;
+    transform-origin: left center;
+    pointer-events: none;
+}
 
-        .shape.trapezoid.spawned {
-            border-bottom-color: #842fd0;
-        }
+.gravity-arrow { background-color: red; }
+.friction-arrow { background-color: green; }
+.air-friction-arrow { background-color: purple; }
+.motion-arrow { background-color: orange; }
 
-        .shape.main::before {
-            content: '';
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background-color: #ea4335;
-            border-radius: 50%;
-            left: 21px;
-            top: 5px;
-            transform-origin: center center;
-        }
+.arrow-label {
+    position: absolute;
+    font-size: 12px;
+    color: black;
+    white-space: nowrap;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
 
-        /* Force Arrows */
-        .force-arrow {
-            position: absolute;
-            height: 3px;
-            transform-origin: left center;
-            pointer-events: none;
-        }
+.force-value {
+    font-size: 10px;
+    color: #666;
+    margin-top: 2px;
+}
 
-        .gravity-arrow { background-color: #ea4335; }
-        .friction-arrow { background-color: #34a853; }
-        .air-friction-arrow { background-color: #842fd0; }
-        .motion-arrow { background-color: #fbbc05; }
+#legend {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  font-family: Arial, sans-serif;
+  z-index: 1000;
+}
 
-        .arrow-label {
-            position: absolute;
-            font-size: 12px;
-            color: black;
-            white-space: nowrap;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin: 5px 0;
+}
 
-        .force-value {
-            font-size: 10px;
-            color: #666;
-            margin-top: 2px;
-        }
+.legend-color {
+  width: 20px;
+  height: 3px;
+  margin-right: 10px;
+}
 
-        /* Controls */
-        #legend {
-            top: 10px;
-            left: 10px;
-        }
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
 
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 5px 0;
-        }
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1001;
+    border-radius: 5px;
+    overflow: hidden;
+}
 
-        .legend-color {
-            width: 20px;
-            height: 3px;
-        }
+.dropdown-content button {
+    width: 100%;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+}
 
-        .control-button {
-            position: fixed;
-            top: 10px;
-            padding: 10px 20px;
-            background-color: #4285f4;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            z-index: 1000;
-            transition: background-color 0.2s;
-        }
+.dropdown-content button:hover {
+    background-color: #f1f1f1;
+}
 
-        .control-button:hover {
-            background-color: #3367d6;
-        }
+.dropdown:hover .dropdown-content {
+    display: block;
+}
 
-        #pauseButton { right: 10px; }
-        #addBallButton { right: 120px; }
-        #resetButton { right: 230px; }
+#buttonGroup {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 10px;
+  z-index: 1000;
+}
 
-        .shape-selector {
-            position: fixed;
-            top: 10px;
-            right: 340px;
-            padding: 10px;
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
+.control-button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
 
-        select {
-            padding: 5px;
-            border-radius: 3px;
-            border: 1px solid #ccc;
-        }
-    </style>
+.control-button:hover {
+  background-color: #45a049;
+}
+</style>
 </head>
 <body>
-    <div id="legend" class="panel">
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: #ea4335;"></div>
-            <span>Gravity: <span id="gravityValue">0.000</span></span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: #34a853;"></div>
-            <span>Ground Friction: <span id="frictionValue">0.000</span></span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: #842fd0;"></div>
-            <span>Air Friction: <span id="airFrictionValue">0.000</span></span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: #fbbc05;"></div>
-            <span>Motion: <span id="motionValue">0.000</span></span>
+<div id="ball"></div>
+
+<div id="legend">
+  <div class="legend-item">
+    <div class="legend-color" style="background-color: red;"></div>
+    <span>Gravity: <span id="gravityValue">0.000</span></span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-color" style="background-color: green;"></div>
+    <span>Ground Friction: <span id="frictionValue">0.000</span></span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-color" style="background-color: purple;"></div>
+    <span>Air Friction: <span id="airFrictionValue">0.000</span></span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-color" style="background-color: orange;"></div>
+    <span>Motion: <span id="motionValue">0.000</span></span>
+  </div>
+</div>
+
+<div id="buttonGroup">
+    <div class="dropdown">
+        <button id="spawnButton" class="control-button">Spawn Shape ▼</button>
+        <div class="dropdown-content">
+            <button data-shape="circle">Ball</button>
+            <button data-shape="square">Square</button>
+            <button data-shape="triangle">Triangle</button>
         </div>
     </div>
-
-    <div class="shape-selector panel">
-        <select id="shapeSelect">
-            <option value="circle">Circle</option>
-            <option value="square">Square</option>
-            <option value="triangle">Triangle</option>
-            <option value="trapezoid">Trapezoid</option>
-        </select>
-    </div>
-
-    <div id="controls" class="panel">
-        <div class="controls-header">
-            <h3>Controls</h3>
-            <span class="toggle-arrow">▼</span>
-        </div>
-        <div class="slider-container">
-            <label for="gravitySlider">Gravity:</label>
-            <input type="range" id="gravitySlider" min="-1" max="1" step="0.01" value="0.3">
-            <input type="text" id="gravityNumber" pattern="[0-9]*\.?[0-9]*" value="0.3">
-        </div>
-        <div class="slider-container">
-            <label for="airFrictionSlider">Air Friction:</label>
-            <input type="range" id="airFrictionSlider" min="-1" max="1" step="0.01" value="0.005">
-            <input type="text" id="airFrictionNumber" pattern="[0-9]*\.?[0-9]*" value="0.005">
-        </div>
-        <div class="slider-container">
-            <label for="groundFrictionSlider">Ground Friction:</label>
-            <input type="range" id="groundFrictionSlider" min="-1" max="1" step="0.01" value="0.02">
-            <input type="text" id="groundFrictionNumber" pattern="[0-9]*\.?[0-9]*" value="0.02">
-        </div>
-        <div class="slider-container">
-            <label for="bounceSlider">Bounce:</label>
-            <input type="range" id="bounceSlider" min="0" max="2" step="0.01" value="0.8">
-            <input type="text" id="bounceNumber" pattern="[0-9]*\.?[0-9]*" value="0.8">
-        </div>
-    </div>
-
-    <button id="pauseButton" class="control-button">Pause</button>
-    <button id="addBallButton" class="control-button">Add Shape</button>
     <button id="resetButton" class="control-button">Reset</button>
+</div>
 
-    <script>
-        class Shape {
-            constructor(x, y, isMain = false, type = 'circle') {
-                this.x = x;
-                this.y = y;
-                this.dx = 0;
-                this.dy = 0;
-                this.rotation = 0;
-                this.angularVelocity = 0;
-                this.isDragging = false;
-                this.dragOffsetX = 0;
-                this.dragOffsetY = 0;
-                this.lastMouseX = 0;
-                this.lastMouseY = 0;
-                this.prevMouseX = 0;
-                this.prevMouseY = 0;
-                this.isMain = isMain;
-                this.type = type;
-                this.radius = 25;
-                
-                // Shape-specific properties
-                switch(type) {
-                    case 'circle':
-                        this.momentOfInertia = 1;
-                        this.basePoints = this.getCirclePoints();
-                        break;
-                    case 'square':
-                        this.momentOfInertia = 1.5;
-                        this.basePoints = this.getSquarePoints();
-                        break;
-                    case 'triangle':
-                        this.momentOfInertia = 2;
-                        this.basePoints = this.getTrianglePoints();
-                        break;
-                    case 'trapezoid':
-                        this.momentOfInertia = 1.8;
-                        this.basePoints = this.getTrapezoidPoints();
-                        break;
+<div id="controls">
+  <div class="controls-header">
+    <h3>Controls</h3>
+    <span class="toggle-arrow">▼</span>
+  </div>
+  <div class="slider-container">
+    <label for="gravitySlider">Gravity:</label>
+    <input type="range" id="gravitySlider" min="-1" max="1" step="0.01" value="0.3">
+    <input type="text" id="gravityNumber" pattern="[0-9]*\.?[0-9]*" value="0.3">
+  </div>
+  <div class="slider-container">
+    <label for="airFrictionSlider">Air Friction:</label>
+    <input type="range" id="airFrictionSlider" min="-1" max="1" step="0.01" value="0.005">
+    <input type="text" id="airFrictionNumber" pattern="[0-9]*\.?[0-9]*" value="0.005">
+  </div>
+  <div class="slider-container">
+    <label for="groundFrictionSlider">Ground Friction:</label>
+    <input type="range" id="groundFrictionSlider" min="-1" max="1" step="0.01" value="0.02">
+    <input type="text" id="groundFrictionNumber" pattern="[0-9]*\.?[0-9]*" value="0.02">
+  </div>
+  <div class="slider-container">
+    <label for="bounceSlider">Bounce:</label>
+    <input type="range" id="bounceSlider" min="0" max="2" step="0.01" value="0.8">
+    <input type="text" id="bounceNumber" pattern="[0-9]*\.?[0-9]*" value="0.8">
+  </div>
+</div>
+<script>
+const ball = document.getElementById('ball');
+let shapes = [];
+let x = window.innerWidth / 2;
+let y = window.innerHeight / 2;
+let dx = 0;
+let dy = 0;
+let rotation = 0;
+let isDragging = false;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
+let lastMouseX = 0;
+let lastMouseY = 0;
+let prevMouseX = 0;
+let prevMouseY = 0;
+let isPaused = false;
+const FORCE_THRESHOLD = 0.0001;
+const VELOCITY_THRESHOLD = 0.01;
+
+let gravity = 0.3;
+let airFriction = 0.005;
+let groundFriction = 0.02;
+let bounce = 0.8;
+const BALL_CIRCUMFERENCE = 50 * Math.PI;
+
+class Shape {
+    constructor(type, x, y) {
+        this.element = document.createElement('div');
+        this.element.className = `shape ${type}`;
+        this.type = type;
+        this.x = x;
+        this.y = y;
+        this.dx = 0;
+        this.dy = 0;
+        this.rotation = 0;
+        this.angularVelocity = 0;
+        this.isDragging = false;
+        this.width = 50;
+        this.height = 50;
+        this.mass = 1;
+        
+        document.body.appendChild(this.element);
+        this.updatePosition();
+        this.setupEventListeners();
+    }
+    
+    updatePosition() {
+        this.element.style.left = this.x + 'px';
+        this.element.style.top = this.y + 'px';
+        this.element.style.transform = `rotate(${this.rotation}deg)`;
+    }
+    
+    checkCollision(other) {
+        const dx = (this.x + this.width/2) - (other.x + other.width/2);
+        const dy = (this.y + this.height/2) - (other.y + other.height/2);
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const minDistance = this.width/2 + other.width/2;
+        
+        if (distance < minDistance) {
+            // Collision detected
+            const angle = Math.atan2(dy, dx);
+            const targetX = this.x + Math.cos(angle) * minDistance;
+            const targetY = this.y + Math.sin(angle) * minDistance;
+            
+            // Move shapes apart
+            const moveX = (targetX - other.x) * 0.5;
+            const moveY = (targetY - other.y) * 0.5;
+            
+            this.x += moveX;
+            this.y += moveY;
+            other.x -= moveX;
+            other.y -= moveY;
+            
+            // Calculate new velocities
+            const normalX = dx / distance;
+            const normalY = dy / distance;
+            const relativeVelocityX = this.dx - other.dx;
+            const relativeVelocityY = this.dy - other.dy;
+            const velocityAlongNormal = relativeVelocityX * normalX + relativeVelocityY * normalY;
+            
+            if (velocityAlongNormal > 0) return;
+            
+            const restitution = bounce;
+            const impulseStrength = -(1 + restitution) * velocityAlongNormal;
+            const impulse = impulseStrength / (1/this.mass + 1/other.mass);
+            
+            this.dx += (impulse * normalX) / this.mass;
+            this.dy += (impulse * normalY) / this.mass;
+            other.dx -= (impulse * normalX) / other.mass;
+            other.dy -= (impulse * normalY) / other.mass;
+            
+            // Add rotation based on collision point
+            const rotationImpulse = (dx * other.dy - dy * other.dx) * 0.1;
+            this.angularVelocity += rotationImpulse / this.mass;
+            other.angularVelocity -= rotationImpulse / other.mass;
+        }
+    }
+    
+    setupEventListeners() {
+        this.element.addEventListener('mousedown', (e) => {
+            this.isDragging = true;
+            this.element.classList.add('dragging');
+            this.dragOffsetX = e.clientX - this.x;
+            this.dragOffsetY = e.clientY - this.y;
+            this.dx = 0;
+            this.dy = 0;
+            this.lastMouseX = e.clientX;
+            this.lastMouseY = e.clientY;
+            this.prevMouseX = e.clientX;
+            this.prevMouseY = e.clientY;
+        });
+    }
+    
+    update() {
+        if (!this.isDragging) {
+            this.dy += gravity;
+            
+            if (airFriction > 0) {
+                this.dx *= (1 - airFriction);
+                this.dy *= (1 - airFriction);
+                this.angularVelocity *= (1 - airFriction);
+            }
+            
+            if (this.y + this.height >= window.innerHeight) {
+                if (groundFriction > 0) {
+                    this.dx *= (1 - groundFriction);
+                    this.angularVelocity *= (1 - groundFriction);
                 }
-
-                this.element = document.createElement('div');
-                this.element.className = `shape ${type} ${isMain ? 'main' : 'spawned'}`;
-                document.body.appendChild(this.element);
-                
-                this.setupDragListeners();
-                this.updatePosition();
             }
-
-            getCirclePoints() {
-                return [{x: 0, y: 0}];
+            
+            this.x += this.dx;
+            this.y += this.dy;
+            this.rotation += this.angularVelocity;
+            
+            // Boundary checking
+            if (this.x + this.width > window.innerWidth) {
+                this.x = window.innerWidth - this.width;
+                this.dx = -this.dx * bounce;
+                this.angularVelocity *= bounce;
+            } else if (this.x < 0) {
+                this.x = 0;
+                this.dx = -this.dx * bounce;
+                this.angularVelocity *= bounce;
             }
-
-            getSquarePoints() {
-                return [
-                    {x: -25, y: -25},
-                    {x: 25, y: -25},
-                    {x: 25, y: 25},
-                    {x: -25, y: 25}
-                ];
+            
+            if (this.y + this.height > window.innerHeight) {
+                this.y = window.innerHeight - this.height;
+                this.dy = -this.dy * bounce;
+                this.angularVelocity *= bounce;
+            } else if (this.y < 0) {
+                this.y = 0;
+                this.dy = -this.dy * bounce;
+                this.angularVelocity *= bounce;
             }
+        }
+        
+        this.updatePosition();
+    }
+    
+    remove() {
+        this.element.remove();
+    }
+}
+const gravityValueElement = document.getElementById('gravityValue');
+const frictionValueElement = document.getElementById('frictionValue');
+const airFrictionValueElement = document.getElementById('airFrictionValue');
+const motionValueElement = document.getElementById('motionValue');
+const pauseButton = document.getElementById('pauseButton');
+const resetButton = document.getElementById('resetButton');
+const controlsPanel = document.getElementById('controls');
+const controlsHeader = document.querySelector('.controls-header');
 
-            getTrianglePoints() {
-                return [
-                    {x: -25, y: 25},
-                    {x: 25, y: 25},
-                    {x: 0, y: -25}
-                ];
-            }
+controlsHeader.addEventListener('click', () => {
+    controlsPanel.classList.toggle('hidden');
+});
 
-            getTrapezoidPoints() {
-                return [
-                    {x: -25, y: 25},
-                    {x: 25, y: 25},
-                    {x: 15, y: -25},
-                    {x: -15, y: -25}
-                ];
-            }
+// Shape spawning from dropdown
+document.querySelectorAll('.dropdown-content button').forEach(button => {
+    button.addEventListener('click', () => {
+        const shapeType = button.dataset.shape;
+        const shape = new Shape(shapeType, 
+            Math.random() * (window.innerWidth - 100) + 50,
+            Math.random() * (window.innerHeight - 100) + 50
+        );
+        shapes.push(shape);
+    });
+});
 
-            getRotatedPoints() {
-                const rad = this.rotation * Math.PI / 180;
-                return this.basePoints.map(p => ({
-                    x: p.x * Math.cos(rad) - p.y * Math.sin(rad) + this.x + 25,
-                    y: p.x * Math.sin(rad) + p.y * Math.cos(rad) + this.y + 25
-                }));
-            }
+// Reset button
+resetButton.addEventListener('click', () => {
+    // Remove all shapes
+    shapes.forEach(shape => shape.remove());
+    shapes = [];
+    
+    // Reset ball position and momentum
+    x = window.innerWidth / 2;
+    y = window.innerHeight / 2;
+    dx = 0;
+    dy = 0;
+    rotation = 0;
+    
+    // Reset control values
+    gravity = 0.3;
+    airFriction = 0.005;
+    groundFriction = 0.02;
+    bounce = 0.8;
+    
+    // Update sliders and number inputs
+    gravitySlider.value = gravity;
+    gravityNumber.value = gravity;
+    airFrictionSlider.value = airFriction;
+    airFrictionNumber.value = airFriction;
+    groundFrictionSlider.value = groundFriction;
+    groundFrictionNumber.value = groundFriction;
+    bounceSlider.value = bounce;
+    bounceNumber.value = bounce;
+    
+    // Update ball position
+    ball.style.left = x + 'px';
+    ball.style.top = y + 'px';
+    ball.style.transform = `rotate(${rotation}deg)`;
+});
 
-            findLowestPoint() {
-                if (this.type === 'circle') {
-                    return this.y + 50;
-                }
-                const points = this.getRotatedPoints();
-                return Math.max(...points.map(p => p.y));
-            }
+const gravitySlider = document.getElementById('gravitySlider');
+const airFrictionSlider = document.getElementById('airFrictionSlider');
+const groundFrictionSlider = document.getElementById('groundFrictionSlider');
+const bounceSlider = document.getElementById('bounceSlider');
 
-            findBottomEdgeAngle() {
-                if (this.type === 'circle') return 0;
-                
-                const points = this.getRotatedPoints();
-                let lowestY = -Infinity;
-                let bottomEdgePoints = [];
-                
-                points.forEach(p => {
-                    if (p.y > lowestY) {
-                        lowestY = p.y;
-                        bottomEdgePoints = [p];
-                    } else if (Math.abs(p.y - lowestY) < 0.1) {
-                        bottomEdgePoints.push(p);
-                    }
-                });
+const gravityNumber = document.getElementById('gravityNumber');
+const airFrictionNumber = document.getElementById('airFrictionNumber');
+const groundFrictionNumber = document.getElementById('groundFrictionNumber');
+const bounceNumber = document.getElementById('bounceNumber');
 
-                if (bottomEdgePoints.length >= 2) {
-                    const dx = bottomEdgePoints[1].x - bottomEdgePoints[0].x;
-                    const dy = bottomEdgePoints[1].y - bottomEdgePoints[0].y;
-                    return Math.atan2(dy, dx) * 180 / Math.PI;
-                }
-                
-                return this.rotation;
-            }
+function syncInputs(slider, number, callback) {
+    slider.oninput = () => {
+        let value = parseFloat(slider.value);
+        if (Math.abs(value) < 0.1 && slider.id !== 'bounceSlider') {
+            value = 0;
+            slider.value = "0";
+        }
+        number.value = value;
+        callback(value);
+    };
 
-            setupDragListeners() {
-                this.element.addEventListener('mousedown', (e) => {
-                    e.preventDefault();
-                    this.isDragging = true;
-                    this.element.classList.add('dragging');
-                    this.dragOffsetX = e.clientX - this.x;
-                    this.dragOffsetY = e.clientY - this.y;
-                    this.lastMouseX = e.clientX;
-                    this.lastMouseY = e.clientY;
-                    this.prevMouseX = e.clientX;
-                    this.prevMouseY = e.clientY;
-                });
+    number.oninput = number.onchange = () => {
+        let value = parseFloat(number.value);
+        if (isNaN(value)) return;
+        
+        if (value >= parseFloat(slider.min) && value <= parseFloat(slider.max)) {
+            slider.value = value;
+        }
+        
+        callback(value);
+    };
+}
 
-                window.addEventListener('mousemove', (e) => {
-                    if (this.isDragging) {
-                        const newX = e.clientX - this.dragOffsetX;
-                        const newY = e.clientY - this.dragOffsetY;
-                        
-                        this.dx = e.clientX - this.lastMouseX;
-                        this.dy = e.clientY - this.lastMouseY;
-                        
-                        this.x = newX;
-                        this.y = newY;
+syncInputs(gravitySlider, gravityNumber, value => gravity = value);
+syncInputs(airFrictionSlider, airFrictionNumber, value => airFriction = value);
+syncInputs(groundFrictionSlider, groundFrictionNumber, value => groundFriction = value);
+syncInputs(bounceSlider, bounceNumber, value => bounce = value);
 
-                        this.updateRotation();
+const createArrow = (className) => {
+    const arrow = document.createElement('div');
+    arrow.className = `force-arrow ${className}`;
+    document.body.appendChild(arrow);
+    
+    const labelContainer = document.createElement('div');
+    labelContainer.className = 'arrow-label';
+    
+    const label = document.createElement('div');
+    labelContainer.appendChild(label);
+    
+    const value = document.createElement('div');
+    value.className = 'force-value';
+    labelContainer.appendChild(value);
+    
+    document.body.appendChild(labelContainer);
+    
+    return { arrow, labelContainer, label, value };
+};
 
-                        this.prevMouseX = this.lastMouseX;
-                        this.prevMouseY = this.lastMouseY;
-                        this.lastMouseX = e.clientX;
-                        this.lastMouseY = e.clientY;
-                        
-                        this.updatePosition();
-                    }
-                });
+const { arrow: gravityArrow, labelContainer: gravityLabelContainer, label: gravityLabel, value: gravityValue } = createArrow('gravity-arrow');
+const { arrow: frictionArrow, labelContainer: frictionLabelContainer, label: frictionLabel, value: frictionValue } = createArrow('friction-arrow');
+const { arrow: airFrictionArrow, labelContainer: airFrictionLabelContainer, label: airFrictionLabel, value: airFrictionValue } = createArrow('air-friction-arrow');
+const { arrow: motionArrow, labelContainer: motionLabelContainer, label: motionLabel, value: motionValue } = createArrow('motion-arrow');
+function formatForceValue(value) {
+    return value.toFixed(3);
+}
 
-                window.addEventListener('mouseup', () => {
-                    if (this.isDragging) {
-                        this.isDragging = false;
-                        this.element.classList.remove('dragging');
-                        this.dx = (this.lastMouseX - this.prevMouseX) * 2;
-                        this.dy = (this.lastMouseY - this.prevMouseY) * 2;
-                    }
-                });
-            }
+function updateArrow(arrow, labelContainer, label, valueElement, startX, startY, force, angle, text) {
+    if (Math.abs(force) < FORCE_THRESHOLD) {
+        force = 0;
+        arrow.style.display = 'none';
+        labelContainer.style.display = 'none';
+        return 0;
+    }
+    
+    arrow.style.display = 'block';
+    labelContainer.style.display = 'block';
+    
+    const arrowLength = Math.abs(force) * 10;
+    
+    arrow.style.left = startX + 25 + 'px';
+    arrow.style.top = startY + 25 + 'px';
+    arrow.style.width = arrowLength + 'px';
+    arrow.style.transform = `rotate(${angle}deg)`;
+    
+    const labelX = startX + 25 + (arrowLength / 2) * Math.cos(angle * Math.PI / 180);
+    const labelY = startY + 25 + (arrowLength / 2) * Math.sin(angle * Math.PI / 180);
+    
+    labelContainer.style.left = labelX + 'px';
+    labelContainer.style.top = labelY - 20 + 'px';
+    label.textContent = text;
+    valueElement.textContent = `Force: ${formatForceValue(force)}`;
+    
+    return force;
+}
 
-            updateRotation() {
-                if (this.isDragging) {
-                    const dragAngle = Math.atan2(
-                        this.lastMouseY - this.prevMouseY,
-                        this.lastMouseX - this.prevMouseX
-                    ) * 180 / Math.PI;
-                    
-                    if (Math.abs(this.lastMouseX - this.prevMouseX) > 0 || 
-                        Math.abs(this.lastMouseY - this.prevMouseY) > 0) {
-                        this.angularVelocity = dragAngle * 0.1;
-                    }
-                }
-                
-                this.element.style.transform = `rotate(${this.rotation}deg)`;
-            }
+function updateBallRotation() {
+    const rotationDelta = (dx / BALL_CIRCUMFERENCE) * 360;
+    rotation = (rotation + rotationDelta) % 360;
+    ball.style.transform = `rotate(${rotation}deg)`;
+}
 
-            applyRotationalGravity() {
-                const bottomAngle = this.findBottomEdgeAngle();
-                if (Math.abs(bottomAngle) > 1) {
-                    const torque = Math.sin(bottomAngle * Math.PI / 180) * gravity * 2;
-                    this.angularVelocity += torque / this.momentOfInertia;
+function updateBallPosition() {
+    if (!isPaused) {
+        if (!isDragging) {
+            dy += gravity;
+            
+            if (airFriction > 0) {
+                if (airFriction >= 1) {
+                    dx = 0;
+                    dy = 0;
                 } else {
-                    this.angularVelocity *= 0.8;
+                    dx *= (1 - airFriction);
+                    dy *= (1 - airFriction);
                 }
-
-                this.rotation += this.angularVelocity;
-                this.angularVelocity *= 0.98;
+            } else if (airFriction < 0) {
+                dx *= (1 + Math.abs(airFriction));
+                dy *= (1 + Math.abs(airFriction));
             }
-
-            update(shapes) {
-                if (!isPaused && !this.isDragging) {
-                    this.dy += gravity;
-                    
-                    const speedSquared = this.dx * this.dx + this.dy * this.dy;
-                    const airResistance = airFriction * speedSquared;
-                    
-                    if (airFriction > 0) {
-                        this.dx *= (1 - airResistance);
-                        this.dy *= (1 - airResistance);
-                        this.angularVelocity *= (1 - airResistance);
+            
+            if (y + 50 >= window.innerHeight) {
+                if (groundFriction > 0) {
+                    if (groundFriction >= 1) {
+                        dx = 0;
+                    } else {
+                        dx *= (1 - groundFriction);
                     }
-                    
-                    const lowestPoint = this.findLowestPoint();
-                    if (lowestPoint >= window.innerHeight) {
-                        if (groundFriction > 0) {
-                            const speedThreshold = 1;
-                            if (Math.abs(this.dx) < speedThreshold) {
-                                this.dx *= (1 - groundFriction * 2);
-                                if (Math.abs(this.dx) < 0.01) this.dx = 0;
-                            } else {
-                                this.dx *= (1 - groundFriction);
-                            }
-                            this.angularVelocity *= (1 - groundFriction * 1.5);
-                        }
-                        
-                        if (Math.abs(this.dy) < 0.1) {
-                            this.dy = 0;
-                            this.y = window.innerHeight - 50;
-                        } else {
-                            this.dy = -this.dy * bounce;
-                            this.dx *= 0.95;
-                        }
-                        
-                        this.y = window.innerHeight - 50;
-                    }
-
-                    this.applyRotationalGravity();
-
-                    this.x += this.dx;
-                    this.y += this.dy;
-
-                    if (this.x + 50 > window.innerWidth) {
-                        this.x = window.innerWidth - 50;
-                        this.dx = -this.dx * bounce * 0.8;
-                        this.angularVelocity *= -0.7;
-                    } else if (this.x < 0) {
-                        this.x = 0;
-                        this.dx = -this.dx * bounce * 0.8;
-                        this.angularVelocity *= -0.7;
-                    }
-
-                    if (this.y < 0) {
-                        this.y = 0;
-                        this.dy = -this.dy * bounce * 0.8;
-                    }
-
-                    shapes.forEach(otherShape => {
-                        if (otherShape !== this) {
-                            this.checkCollision(otherShape);
-                        }
-                    });
-
-                    this.updateRotation();
-                    this.updatePosition();
+                } else if (groundFriction < 0) {
+                    dx *= (1 + Math.abs(groundFriction));
                 }
-            }
-
-            checkCollision(otherShape) {
-                const dx = this.x - otherShape.x;
-                const dy = this.y - otherShape.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
                 
-                if (distance < this.radius + otherShape.radius) {
-                    const angle = Math.atan2(dy, dx);
-                    const sin = Math.sin(angle);
-                    const cos = Math.cos(angle);
-
-                    const damping = 0.8;
-                    
-                    const vx1 = this.dx * cos + this.dy * sin;
-                    const vy1 = this.dy * cos - this.dx * sin;
-                    const vx2 = otherShape.dx * cos + otherShape.dy * sin;
-                    const vy2 = otherShape.dy * cos - otherShape.dx * sin;
-
-                    this.dx = (vx2 * cos - vy1 * sin) * damping;
-                    this.dy = (vy1 * cos + vx2 * sin) * damping;
-                    otherShape.dx = (vx1 * cos - vy2 * sin) * damping;
-                    otherShape.dy = (vy2 * cos + vx1 * sin) * damping;
-
-                    const relativeAngularVelocity = this.angularVelocity - otherShape.angularVelocity;
-                    const impactForce = Math.abs(relativeAngularVelocity) * 0.5;
-                    
-                    this.angularVelocity *= -0.7;
-                    otherShape.angularVelocity = relativeAngularVelocity * 0.7;
-
-                    const overlap = this.radius + otherShape.radius - distance;
-                    const moveX = (overlap * cos) / 2;
-                    const moveY = (overlap * sin) / 2;
-
-                    this.x += moveX;
-                    this.y += moveY;
-                    otherShape.x -= moveX;
-                    otherShape.y -= moveY;
+                if (Math.abs(dy) < VELOCITY_THRESHOLD) {
+                    dy = 0;
+                    y = window.innerHeight - 50;
                 }
             }
 
-            updatePosition() {
-                this.element.style.left = this.x + 'px';
-                this.element.style.top = this.y + 'px';
+            x += dx;
+            y += dy;
+
+            if (x + 50 > window.innerWidth) {
+                x = window.innerWidth - 50;
+                dx = -dx * bounce;
+            } else if (x < 0) {
+                x = 0;
+                dx = -dx * bounce;
             }
 
-            remove() {
-                this.element.remove();
+            if (y + 50 > window.innerHeight) {
+                y = window.innerHeight - 50;
+                dy = -dy * bounce;
+            } else if (y < 0) {
+                y = 0;
+                dy = -dy * bounce;
             }
+
+            updateBallRotation();
         }
 
-        let shapes = [];
-        let isPaused = false;
-        let gravity = 0.3;
-        let airFriction = 0.005;
-        let groundFriction = 0.02;
-        let bounce = 0.8;
-
-        // UI Elements
-        const elements = {
-            gravityValue: document.getElementById('gravityValue'),
-            frictionValue: document.getElementById('frictionValue'),
-            airFrictionValue: document.getElementById('airFrictionValue'),
-            motionValue: document.getElementById('motionValue'),
-            controls: document.getElementById('controls'),
-            controlsHeader: document.querySelector('.controls-header')
+        ball.style.left = x + 'px';
+        ball.style.top = y + 'px';
+        
+        // Check collisions and update shapes
+        const mainBallShape = {
+            x: x,
+            y: y,
+            dx: dx,
+            dy: dy,
+            width: 50,
+            height: 50,
+            mass: 1
         };
 
-        // Arrow visualization
-        function createArrow(className) {
-            const arrow = document.createElement('div');
-            arrow.className = `force-arrow ${className}`;
-            document.body.appendChild(arrow);
-            
-            const labelContainer = document.createElement('div');
-            labelContainer.className = 'arrow-label';
-            
-            const label = document.createElement('div');
-            labelContainer.appendChild(label);
-            
-            const value = document.createElement('div');
-            value.className = 'force-value';
-            labelContainer.appendChild(value);
-            
-            document.body.appendChild(labelContainer);
-            
-            return { arrow, labelContainer, label, value };
-        }
-
-        const arrows = {
-            gravity: createArrow('gravity-arrow'),
-            friction: createArrow('friction-arrow'),
-            airFriction: createArrow('air-friction-arrow'),
-            motion: createArrow('motion-arrow')
-        };
-
-        function formatForceValue(value) {
-            return value.toFixed(3);
-        }
-
-        function updateArrow(arrow, labelContainer, label, valueElement, startX, startY, force, angle, text) {
-            if (Math.abs(force) < 0.0001) {
-                force = 0;
-                arrow.style.display = 'none';
-                labelContainer.style.display = 'none';
-                return 0;
-            }
-            
-            arrow.style.display = 'block';
-            labelContainer.style.display = 'block';
-            
-            const scaledLength = Math.min(300, force * 200);
-            
-            arrow.style.left = startX + 25 + 'px';
-            arrow.style.top = startY + 25 + 'px';
-            arrow.style.width = scaledLength + 'px';
-            arrow.style.transform = `rotate(${angle}deg)`;
-            
-            const labelX = startX + 25 + (scaledLength / 2) * Math.cos(angle * Math.PI / 180);
-            const labelY = startY + 25 + (scaledLength / 2) * Math.sin(angle * Math.PI / 180);
-            
-            labelContainer.style.left = labelX + 'px';
-            labelContainer.style.top = labelY - 20 + 'px';
-            label.textContent = text;
-            valueElement.textContent = `Force: ${formatForceValue(force)}`;
-            
-            return force;
-        }
-
-        function updateForceArrows(mainShape) {
-            if (!mainShape || !mainShape.isMain) return;
-
-            const gravityForce = updateArrow(
-                arrows.gravity.arrow,
-                arrows.gravity.labelContainer,
-                arrows.gravity.label,
-                arrows.gravity.value,
-                mainShape.x,
-                mainShape.y,
-                Math.abs(gravity),
-                90,
-                'Gravity'
-            );
-            elements.gravityValue.textContent = formatForceValue(gravityForce);
-            
-            let groundFrictionForce = 0;
-            if (mainShape.y + 50 >= window.innerHeight && Math.abs(mainShape.dx) > 0) {
-                const frictionAngle = mainShape.dx > 0 ? 180 : 0;
-                const frictionMagnitude = Math.abs(mainShape.dx * groundFriction);
-                groundFrictionForce = updateArrow(
-                    arrows.friction.arrow,
-                    arrows.friction.labelContainer,
-                    arrows.friction.label,
-                    arrows.friction.value,
-                    mainShape.x,
-                    mainShape.y,
-                    frictionMagnitude,
-                    frictionAngle,
-                    'Ground Friction'
-                );
-            } else {
-                arrows.friction.arrow.style.display = 'none';
-                arrows.friction.labelContainer.style.display = 'none';
-            }
-            elements.frictionValue.textContent = formatForceValue(groundFrictionForce);
-            
-            const airFrictionMagnitude = Math.sqrt(mainShape.dx * mainShape.dx + mainShape.dy * mainShape.dy) * Math.abs(airFriction);
-            const airFrictionForce = updateArrow(
-                arrows.airFriction.arrow,
-                arrows.airFriction.labelContainer,
-                arrows.airFriction.label,
-                arrows.airFriction.value,
-                mainShape.x,
-                mainShape.y,
-                airFrictionMagnitude,
-                Math.atan2(mainShape.dy, mainShape.dx) * 180 / Math.PI + 180,
-                'Air Friction'
-            );
-            elements.airFrictionValue.textContent = formatForceValue(airFrictionForce);
-            
-            const speed = Math.sqrt(mainShape.dx * mainShape.dx + mainShape.dy * mainShape.dy);
-            const motionForce = updateArrow(
-                arrows.motion.arrow,
-                arrows.motion.labelContainer,
-                arrows.motion.label,
-                arrows.motion.value,
-                mainShape.x,
-                mainShape.y,
-                speed,
-                Math.atan2(mainShape.dy, mainShape.dx) * 180 / Math.PI,
-                'Motion'
-            );
-            elements.motionValue.textContent = formatForceValue(motionForce);
-        }
-
-        // Controls and Event Handlers
-        elements.controlsHeader.addEventListener('click', () => {
-            elements.controls.classList.toggle('hidden');
-        });
-
-        function syncInputs(slider, number, callback) {
-            slider.oninput = () => {
-                let value = parseFloat(slider.value);
-                if (Math.abs(value) < 0.1 && slider.id !== 'bounceSlider') {
-                    value = 0;
-                    slider.value = "0";
-                }
-                number.value = value;
-                callback(value);
-            };
-
-            number.oninput = number.onchange = () => {
-                let value = parseFloat(number.value);
-                if (isNaN(value)) return;
+        for (let i = 0; i < shapes.length; i++) {
+            const shape = shapes[i];
+            if (!shape.isDragging) {
+                shape.checkCollision(mainBallShape);
+                dx = mainBallShape.dx;
+                dy = mainBallShape.dy;
                 
-                if (value >= parseFloat(slider.min) && value <= parseFloat(slider.max)) {
-                    slider.value = value;
+                // Check collisions with other shapes
+                for (let j = i + 1; j < shapes.length; j++) {
+                    if (!shapes[j].isDragging) {
+                        shape.checkCollision(shapes[j]);
+                    }
                 }
-                
-                callback(value);
-            };
+            }
+            shape.update();
         }
+    }
 
-        const controls = [
-            {
-                slider: document.getElementById('gravitySlider'),
-                number: document.getElementById('gravityNumber'),
-                callback: value => gravity = value
-            },
-            {
-                slider: document.getElementById('airFrictionSlider'),
-                number: document.getElementById('airFrictionNumber'),
-                callback: value => airFriction = value
-            },
-            {
-                slider: document.getElementById('groundFrictionSlider'),
-                number: document.getElementById('groundFrictionNumber'),
-                callback: value => groundFriction = value
-            },
-            {
-                slider: document.getElementById('bounceSlider'),
-                number: document.getElementById('bounceNumber'),
-                callback: value => bounce = value
-            }
-        ];
+    const gravityForce = updateArrow(gravityArrow, gravityLabelContainer, gravityLabel, gravityValue, 
+                                   x, y, Math.abs(gravity), 90, 'Gravity');
+    gravityValueElement.textContent = formatForceValue(gravityForce);
+    
+    let groundFrictionForce = 0;
+    if (y + 50 >= window.innerHeight && Math.abs(dx) > 0) {
+        const frictionAngle = dx > 0 ? 180 : 0;
+        const frictionMagnitude = Math.abs(dx * groundFriction);
+        groundFrictionForce = updateArrow(frictionArrow, frictionLabelContainer, frictionLabel, frictionValue,
+                                        x, y, frictionMagnitude, frictionAngle, 'Ground Friction');
+    } else {
+        frictionArrow.style.display = 'none';
+        frictionLabelContainer.style.display = 'none';
+        groundFrictionForce = 0;
+    }
+    frictionValueElement.textContent = formatForceValue(groundFrictionForce);
+    
+    const airFrictionMagnitude = Math.sqrt(dx * dx + dy * dy) * Math.abs(airFriction);
+    const airFrictionForce = updateArrow(airFrictionArrow, airFrictionLabelContainer, airFrictionLabel, airFrictionValue,
+                                       x, y, airFrictionMagnitude, Math.atan2(dy, dx) * 180 / Math.PI + 180, 'Air Friction');
+    airFrictionValueElement.textContent = formatForceValue(airFrictionForce);
+    
+    const speed = Math.sqrt(dx * dx + dy * dy);
+    const motionForce = updateArrow(motionArrow, motionLabelContainer, motionLabel, motionValue,
+                                  x, y, speed, Math.atan2(dy, dx) * 180 / Math.PI, 'Motion');
+    motionValueElement.textContent = formatForceValue(motionForce);
 
-        controls.forEach(control => {
-            syncInputs(control.slider, control.number, control.callback);
-        });
+    if (!isPaused) {
+        requestAnimationFrame(updateBallPosition);
+    }
+}
 
-        // Animation Loop
-        function updateSimulation() {
-            shapes.forEach(shape => shape.update(shapes));
-            updateForceArrows(shapes[0]);
-            if (!isPaused) {
-                requestAnimationFrame(updateSimulation);
-            }
-        }
+ball.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    ball.classList.add('dragging');
+    
+    // Reset velocities to prevent launching glitch
+    dx = 0;
+    dy = 0;
+    
+    dragOffsetX = e.clientX - x;
+    dragOffsetY = e.clientY - y;
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
+    prevMouseX = e.clientX;
+    prevMouseY = e.clientY;
+});
 
-        // Button Event Handlers
-        document.getElementById('pauseButton').addEventListener('click', () => {
-            isPaused = !isPaused;
-            pauseButton.textContent = isPaused ? 'Resume' : 'Pause';
-            if (!isPaused) {
-                requestAnimationFrame(updateSimulation);
-            }
-        });
+window.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+        const newX = e.clientX - dragOffsetX;
+        const newY = e.clientY - dragOffsetY;
+        
+        dx = e.clientX - lastMouseX;
+        dy = e.clientY - lastMouseY;
+        
+        x = newX;
+        y = newY;
 
-        document.getElementById('addBallButton').addEventListener('click', () => {
-            const shapeSelect = document.getElementById('shapeSelect');
-            const selectedShape = shapeSelect.value;
-            const newShape = new Shape(
-                Math.random() * (window.innerWidth - 50),
-                Math.random() * (window.innerHeight - 50),
-                false,
-                selectedShape
-            );
-            shapes.push(newShape);
-        });
+        updateBallRotation();
 
-        document.getElementById('resetButton').addEventListener('click', () => {
-            for (let i = shapes.length - 1; i >= 1; i--) {
-                shapes[i].remove();
-                shapes.splice(i, 1);
-            }
+        prevMouseX = lastMouseX;
+        prevMouseY = lastMouseY;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+    }
+    
+    // Handle shape dragging
+    shapes.forEach(shape => {
+        if (shape.isDragging) {
+            const newX = e.clientX - shape.dragOffsetX;
+            const newY = e.clientY - shape.dragOffsetY;
             
-            if (shapes.length > 0) {
-                const mainShape = shapes[0];
-                mainShape.x = window.innerWidth / 2;
-                mainShape.y = window.innerHeight / 2;
-                mainShape.dx = 0;
-                mainShape.dy = 0;
-                mainShape.rotation = 0;
-                mainShape.angularVelocity = 0;
-                mainShape.updatePosition();
-                mainShape.updateRotation();
-            }
-        });
+            shape.dx = e.clientX - shape.lastMouseX;
+            shape.dy = e.clientY - shape.lastMouseY;
+            
+            shape.x = newX;
+            shape.y = newY;
+            
+            shape.prevMouseX = shape.lastMouseX;
+            shape.prevMouseY = shape.lastMouseY;
+            shape.lastMouseX = e.clientX;
+            shape.lastMouseY = e.clientY;
+        }
+    });
+});
 
-        // Keyboard Event Handler for Shape Deletion
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace') {
-                const draggedShape = shapes.find(shape => shape.isDragging && !shape.isMain);
-                if (draggedShape) {
-                    const index = shapes.indexOf(draggedShape);
-                    draggedShape.remove();
-                    shapes.splice(index, 1);
-                }
-            }
-        });
+window.addEventListener('mouseup', (e) => {
+    if (isDragging) {
+        isDragging = false;
+        ball.classList.remove('dragging');
 
-        // Initialize the simulation
-        const initialShape = new Shape(window.innerWidth / 2, window.innerHeight / 2, true, 'circle');
-        shapes.push(initialShape);
+        dx = (lastMouseX - prevMouseX);
+        dy = (lastMouseY - prevMouseY);
 
-        // Start the animation loop
-        updateSimulation();
-    </script>
+        lastMouseX = 0;
+        lastMouseY = 0;
+        prevMouseX = 0;
+        prevMouseY = 0;
+    }
+    
+    // Handle shape release
+    shapes.forEach(shape => {
+        if (shape.isDragging) {
+            shape.isDragging = false;
+            shape.element.classList.remove('dragging');
+            
+            shape.dx = (shape.lastMouseX - shape.prevMouseX);
+            shape.dy = (shape.lastMouseY - shape.prevMouseY);
+            
+            shape.lastMouseX = 0;
+            shape.lastMouseY = 0;
+            shape.prevMouseX = 0;
+            shape.prevMouseY = 0;
+        }
+    });
+});
+
+window.addEventListener("blur", () => {
+    if (isDragging) {
+        isDragging = false;
+        ball.classList.remove('dragging');
+        lastMouseX = 0;
+        lastMouseY = 0;
+        prevMouseX = 0;
+        prevMouseY = 0;
+    }
+    
+    // Handle shape blur
+    shapes.forEach(shape => {
+        if (shape.isDragging) {
+            shape.isDragging = false;
+            shape.element.classList.remove('dragging');
+            shape.lastMouseX = 0;
+            shape.lastMouseY = 0;
+            shape.prevMouseX = 0;
+            shape.prevMouseY = 0;
+        }
+    });
+});
+
+ball.style.left = x + 'px';
+ball.style.top = y + 'px';
+updateBallPosition();
+</script>
+
 </body>
 </html>
