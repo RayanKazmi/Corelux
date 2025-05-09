@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta name="author" content="RayanKazmi">
+<meta name="date" content="2025-05-09 19:13:31">
 <link rel="icon" href="../../favicon.ico">
 <title>Better Bounce Ball</title>
 <style>
@@ -9,12 +11,13 @@ body {
   margin: 0;
   background-color: #f0f0f0;
   cursor: default;
+  user-select: none;
 }
 
 #controls {
   position: fixed;
   bottom: 10px;
-  left: 10px;
+  right: 10px;
   background-color: rgba(255, 255, 255, 0.9);
   padding: 10px;
   border-radius: 5px;
@@ -25,7 +28,7 @@ body {
 }
 
 #controls.hidden {
-  transform: translateY(calc(100% - 40px));
+  transform: translateX(calc(100% - 40px));
 }
 
 .controls-header {
@@ -43,10 +46,11 @@ body {
 
 .toggle-arrow {
   transition: transform 0.3s ease;
+  display: inline-block;
 }
 
 #controls.hidden .toggle-arrow {
-  transform: rotate(180deg);
+  transform: rotate(-90deg);
 }
 
 .slider-container {
@@ -71,14 +75,25 @@ body {
   padding: 2px 5px;
 }
 
-#ball {
+#ball, .spawned-ball {
   position: absolute;
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background-color: blue;
   cursor: grab;
   transform-origin: center center;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+#ball {
+  background-color: blue;
+}
+
+.spawned-ball {
+  background-color: purple;
 }
 
 #ball::before {
@@ -91,51 +106,53 @@ body {
   left: 21px;
   top: 5px;
   transform-origin: center center;
+  pointer-events: none;
 }
 
-#ball.dragging {
-    cursor: grabbing;
+#ball.dragging, .spawned-ball.dragging {
+  cursor: grabbing;
 }
 
 .force-arrow {
-    position: absolute;
-    height: 3px;
-    transform-origin: left center;
-    pointer-events: none;
+  position: absolute;
+  height: 3px;
+  transform-origin: left center;
+  pointer-events: none;
 }
 
 .gravity-arrow {
-    background-color: red;
+  background-color: red;
 }
 
 .friction-arrow {
-    background-color: green;
+  background-color: green;
 }
 
 .air-friction-arrow {
-    background-color: purple;
+  background-color: purple;
 }
 
 .motion-arrow {
-    background-color: orange;
+  background-color: orange;
 }
 
 .arrow-label {
-    position: absolute;
-    font-size: 12px;
-    color: black;
-    white-space: nowrap;
-    pointer-events: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+  position: absolute;
+  font-size: 12px;
+  color: black;
+  white-space: nowrap;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  user-select: none;
 }
 
 .force-value {
-    font-size: 10px;
-    color: #666;
-    margin-top: 2px;
+  font-size: 10px;
+  color: #666;
+  margin-top: 2px;
 }
 
 #legend {
@@ -148,6 +165,7 @@ body {
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
   font-family: Arial, sans-serif;
   z-index: 1000;
+  user-select: none;
 }
 
 .legend-item {
@@ -162,22 +180,63 @@ body {
   margin-right: 10px;
 }
 
-#pauseButton {
+.button-container {
   position: fixed;
   top: 10px;
   right: 10px;
+  display: flex;
+  gap: 10px;
+  z-index: 1000;
+}
+
+.control-button {
   padding: 10px 20px;
-  background-color: #4CAF50;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
-  z-index: 1000;
+  transition: background-color 0.3s;
+  user-select: none;
+}
+
+#pauseButton {
+  background-color: #4CAF50;
 }
 
 #pauseButton:hover {
   background-color: #45a049;
+}
+
+#spawnButton {
+  background-color: #9C27B0;
+}
+
+#spawnButton:hover {
+  background-color: #7B1FA2;
+}
+
+#resetButton {
+  background-color: #f44336;
+}
+
+#resetButton:hover {
+  background-color: #d32f2f;
+}
+
+* {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+input[type="text"] {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  cursor: text;
 }
 </style>
 </head>
@@ -202,6 +261,12 @@ body {
     <div class="legend-color" style="background-color: orange;"></div>
     <span>Motion: <span id="motionValue">0.000</span></span>
   </div>
+</div>
+
+<div class="button-container">
+  <button id="resetButton" class="control-button">Reset</button>
+  <button id="spawnButton" class="control-button">Spawn Ball</button>
+  <button id="pauseButton" class="control-button">Pause</button>
 </div>
 
 <div id="controls">
@@ -231,12 +296,13 @@ body {
   </div>
 </div>
 
-<button id="pauseButton">Pause</button>
-
 <script>
 const ball = document.getElementById('ball');
-let x = window.innerWidth / 2;
-let y = window.innerHeight / 2;
+let spawnedBalls = [];
+const INITIAL_X = window.innerWidth / 2;
+const INITIAL_Y = window.innerHeight / 2;
+let x = INITIAL_X;
+let y = INITIAL_Y;
 let dx = 0;
 let dy = 0;
 let rotation = 0;
@@ -248,22 +314,113 @@ let lastMouseY = 0;
 let prevMouseX = 0;
 let prevMouseY = 0;
 let isPaused = false;
+let currentDraggedBall = null;
 const FORCE_THRESHOLD = 0.0001;
 const VELOCITY_THRESHOLD = 0.01;
+const COLLISION_ELASTICITY = 0.8;
 
-let gravity = 0.3;
-let airFriction = 0.005;
-let groundFriction = 0.02;
-let bounce = 0.8;
+const INITIAL_VALUES = {
+    gravity: 0.3,
+    airFriction: 0.005,
+    groundFriction: 0.02,
+    bounce: 0.8
+};
+
+let gravity = INITIAL_VALUES.gravity;
+let airFriction = INITIAL_VALUES.airFriction;
+let groundFriction = INITIAL_VALUES.groundFriction;
+let bounce = INITIAL_VALUES.bounce;
 const BALL_CIRCUMFERENCE = 50 * Math.PI;
+const BALL_RADIUS = 25;
+function checkCollision(ball1, ball2) {
+    const dx = (ball2.x + BALL_RADIUS) - (ball1.x + BALL_RADIUS);
+    const dy = (ball2.y + BALL_RADIUS) - (ball1.y + BALL_RADIUS);
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    
+    if (distance < BALL_RADIUS * 2) {
+        const angle = Math.atan2(dy, dx);
+        const sin = Math.sin(angle);
+        const cos = Math.cos(angle);
 
-const FORCE_SCALE = 200;
+        // Rotate velocities
+        const vx1 = ball1.dx * cos + ball1.dy * sin;
+        const vy1 = ball1.dy * cos - ball1.dx * sin;
+        const vx2 = ball2.dx * cos + ball2.dy * sin;
+        const vy2 = ball2.dy * cos - ball2.dx * sin;
+
+        // Collision response with equal mass for all balls
+        const v1Final = ((vx1 * (1 - COLLISION_ELASTICITY)) + (2 * COLLISION_ELASTICITY * vx2)) / 2;
+        const v2Final = ((vx2 * (1 - COLLISION_ELASTICITY)) + (2 * COLLISION_ELASTICITY * vx1)) / 2;
+
+        // Rotate velocities back
+        ball1.dx = v1Final * cos - vy1 * sin;
+        ball1.dy = vy1 * cos + v1Final * sin;
+        ball2.dx = v2Final * cos - vy2 * sin;
+        ball2.dy = vy2 * cos + v2Final * sin;
+
+        // Move balls apart to prevent sticking
+        const overlap = (BALL_RADIUS * 2) - distance;
+        const moveX = (overlap * cos) / 2;
+        const moveY = (overlap * sin) / 2;
+
+        ball1.x -= moveX;
+        ball1.y -= moveY;
+        ball2.x += moveX;
+        ball2.y += moveY;
+
+        return true;
+    }
+    return false;
+}
+
+function handleCollisions() {
+    // Create a main ball object that matches the structure of spawned balls
+    const mainBall = {
+        x: x,
+        y: y,
+        dx: dx,
+        dy: dy
+    };
+
+    // Check main ball against spawned balls
+    spawnedBalls.forEach(spawnedBall => {
+        if (checkCollision(mainBall, spawnedBall)) {
+            // Update main ball velocities and position from collision results
+            x = mainBall.x;
+            y = mainBall.y;
+            dx = mainBall.dx;
+            dy = mainBall.dy;
+
+            // Update main ball position
+            ball.style.left = x + 'px';
+            ball.style.top = y + 'px';
+            
+            // Update spawned ball position
+            spawnedBall.element.style.left = spawnedBall.x + 'px';
+            spawnedBall.element.style.top = spawnedBall.y + 'px';
+        }
+    });
+
+    // Check spawned balls against each other
+    for (let i = 0; i < spawnedBalls.length; i++) {
+        for (let j = i + 1; j < spawnedBalls.length; j++) {
+            if (checkCollision(spawnedBalls[i], spawnedBalls[j])) {
+                spawnedBalls[i].element.style.left = spawnedBalls[i].x + 'px';
+                spawnedBalls[i].element.style.top = spawnedBalls[i].y + 'px';
+                spawnedBalls[j].element.style.left = spawnedBalls[j].x + 'px';
+                spawnedBalls[j].element.style.top = spawnedBalls[j].y + 'px';
+            }
+        }
+    }
+}
 
 const gravityValueElement = document.getElementById('gravityValue');
 const frictionValueElement = document.getElementById('frictionValue');
 const airFrictionValueElement = document.getElementById('airFrictionValue');
 const motionValueElement = document.getElementById('motionValue');
 const pauseButton = document.getElementById('pauseButton');
+const spawnButton = document.getElementById('spawnButton');
+const resetButton = document.getElementById('resetButton');
 const controlsPanel = document.getElementById('controls');
 const controlsHeader = document.querySelector('.controls-header');
 
@@ -309,6 +466,38 @@ syncInputs(airFrictionSlider, airFrictionNumber, value => airFriction = value);
 syncInputs(groundFrictionSlider, groundFrictionNumber, value => groundFriction = value);
 syncInputs(bounceSlider, bounceNumber, value => bounce = value);
 
+function resetSimulation() {
+    x = INITIAL_X;
+    y = INITIAL_Y;
+    dx = 0;
+    dy = 0;
+    rotation = 0;
+    
+    gravity = INITIAL_VALUES.gravity;
+    airFriction = INITIAL_VALUES.airFriction;
+    groundFriction = INITIAL_VALUES.groundFriction;
+    bounce = INITIAL_VALUES.bounce;
+    
+    gravitySlider.value = gravity;
+    airFrictionSlider.value = airFriction;
+    groundFrictionSlider.value = groundFriction;
+    bounceSlider.value = bounce;
+    
+    gravityNumber.value = gravity;
+    airFrictionNumber.value = airFriction;
+    groundFrictionNumber.value = groundFriction;
+    bounceNumber.value = bounce;
+    
+    spawnedBalls.forEach(ball => {
+        ball.element.remove();
+    });
+    spawnedBalls = [];
+    
+    ball.style.left = x + 'px';
+    ball.style.top = y + 'px';
+    ball.style.transform = `rotate(${rotation}deg)`;
+}
+
 const createArrow = (className) => {
     const arrow = document.createElement('div');
     arrow.className = `force-arrow ${className}`;
@@ -349,15 +538,15 @@ function updateArrow(arrow, labelContainer, label, valueElement, startX, startY,
     arrow.style.display = 'block';
     labelContainer.style.display = 'block';
     
-    const scaledLength = Math.min(300, force * FORCE_SCALE);
+    const arrowLength = Math.abs(force) * 10;
     
     arrow.style.left = startX + 25 + 'px';
     arrow.style.top = startY + 25 + 'px';
-    arrow.style.width = scaledLength + 'px';
+    arrow.style.width = arrowLength + 'px';
     arrow.style.transform = `rotate(${angle}deg)`;
     
-    const labelX = startX + 25 + (scaledLength / 2) * Math.cos(angle * Math.PI / 180);
-    const labelY = startY + 25 + (scaledLength / 2) * Math.sin(angle * Math.PI / 180);
+    const labelX = startX + 25 + (arrowLength / 2) * Math.cos(angle * Math.PI / 180);
+    const labelY = startY + 25 + (arrowLength / 2) * Math.sin(angle * Math.PI / 180);
     
     labelContainer.style.left = labelX + 'px';
     labelContainer.style.top = labelY - 20 + 'px';
@@ -367,141 +556,175 @@ function updateArrow(arrow, labelContainer, label, valueElement, startX, startY,
     return force;
 }
 
-function updateBallRotation() {
-    const rotationDelta = (dx / BALL_CIRCUMFERENCE) * 360;
-    rotation = (rotation + rotationDelta) % 360;
-    ball.style.transform = `rotate(${rotation}deg)`;
+function createSpawnedBall() {
+    const spawnedBall = document.createElement('div');
+    spawnedBall.className = 'spawned-ball';
+    spawnedBall.style.left = INITIAL_X + 'px';
+    spawnedBall.style.top = INITIAL_Y + 'px';
+    document.body.appendChild(spawnedBall);
+    
+    const ballData = {
+        element: spawnedBall,
+        x: INITIAL_X,
+        y: INITIAL_Y,
+        dx: dx * 1.2,
+        dy: dy * 1.2,
+        rotation: 0,
+        isDragging: false,
+        dragOffsetX: 0,
+        dragOffsetY: 0,
+        lastMouseX: 0,
+        lastMouseY: 0,
+        prevMouseX: 0,
+        prevMouseY: 0
+    };
+
+    spawnedBall.addEventListener('mousedown', (e) => {
+        if (!isPaused) {
+            ballData.isDragging = true;
+            ballData.element.classList.add('dragging');
+            const rect = ballData.element.getBoundingClientRect();
+            ballData.dragOffsetX = e.clientX - rect.left;
+            ballData.dragOffsetY = e.clientY - rect.top;
+            currentDraggedBall = ballData;
+        }
+    });
+    
+    spawnedBalls.push(ballData);
 }
 
 function updateBallPosition() {
-    if (!isPaused) {
-        if (!isDragging) {
-            dy += gravity;
+    if (isPaused) {
+        requestAnimationFrame(updateBallPosition);
+        return;
+    }
+
+    if (!isDragging) {
+        dy += gravity;
+        
+        dx *= (1 - airFriction);
+        dy *= (1 - airFriction);
+        
+        if (y + 50 >= window.innerHeight) {
+            y = window.innerHeight - 50;
+            dy = -dy * bounce;
             
-            if (airFriction > 0) {
-                if (airFriction >= 1) {
-                    dx = 0;
-                    dy = 0;
-                } else {
-                    dx *= (1 - airFriction);
-                    dy *= (1 - airFriction);
-                }
-            } else if (airFriction < 0) {
-                dx *= (1 + Math.abs(airFriction));
-                dy *= (1 + Math.abs(airFriction));
+            if (Math.abs(dx) > VELOCITY_THRESHOLD) {
+                dx *= (1 - groundFriction);
+            } else {
+                dx = 0;
             }
-            
-            if (y + 50 >= window.innerHeight) {
-                if (groundFriction > 0) {
-                    if (groundFriction >= 1) {
-                        dx = 0;
-                    } else {
-                        dx *= (1 - groundFriction);
-                    }
-                } else if (groundFriction < 0) {
-                    dx *= (1 + Math.abs(groundFriction));
-                }
-                
-                if (Math.abs(dy) < VELOCITY_THRESHOLD) {
-                    dy = 0;
-                    y = window.innerHeight - 50;
-                }
-            }
-
-            x += dx;
-            y += dy;
-
-            if (x + 50 > window.innerWidth) {
-                x = window.innerWidth - 50;
-                dx = -dx * bounce;
-            } else if (x < 0) {
-                x = 0;
-                dx = -dx * bounce;
-            }
-
-            if (y + 50 > window.innerHeight) {
-                y = window.innerHeight - 50;
-                dy = -dy * bounce;
-            } else if (y < 0) {
-                y = 0;
-                dy = -dy * bounce;
-            }
-
-            updateBallRotation();
         }
-
+        
+        if (x + 50 > window.innerWidth) {
+            x = window.innerWidth - 50;
+            dx = -dx * bounce;
+        } else if (x < 0) {
+            x = 0;
+            dx = -dx * bounce;
+        }
+        
+        x += dx;
+        y += dy;
+        
+        const speed = Math.sqrt(dx * dx + dy * dy);
+        rotation += (speed / BALL_CIRCUMFERENCE) * 360;
+        
         ball.style.left = x + 'px';
         ball.style.top = y + 'px';
+        ball.style.transform = `rotate(${rotation}deg)`;
     }
-
-    const gravityForce = updateArrow(gravityArrow, gravityLabelContainer, gravityLabel, gravityValue, 
-                                   x, y, Math.abs(gravity), 90, 'Gravity');
+    
+    // Update spawned balls
+    spawnedBalls.forEach(spawnedBall => {
+        if (!spawnedBall.isDragging) {
+            spawnedBall.dy += gravity;
+            
+            spawnedBall.dx *= (1 - airFriction);
+            spawnedBall.dy *= (1 - airFriction);
+            
+            if (spawnedBall.y + 50 >= window.innerHeight) {
+                spawnedBall.y = window.innerHeight - 50;
+                spawnedBall.dy = -spawnedBall.dy * bounce;
+                
+                if (Math.abs(spawnedBall.dx) > VELOCITY_THRESHOLD) {
+                    spawnedBall.dx *= (1 - groundFriction);
+                } else {
+                    spawnedBall.dx = 0;
+                }
+            }
+            
+            if (spawnedBall.x + 50 > window.innerWidth) {
+                spawnedBall.x = window.innerWidth - 50;
+                spawnedBall.dx = -spawnedBall.dx * bounce;
+            } else if (spawnedBall.x < 0) {
+                spawnedBall.x = 0;
+                spawnedBall.dx = -spawnedBall.dx * bounce;
+            }
+            
+            spawnedBall.x += spawnedBall.dx;
+            spawnedBall.y += spawnedBall.dy;
+            
+            const speed = Math.sqrt(spawnedBall.dx * spawnedBall.dx + spawnedBall.dy * spawnedBall.dy);
+            spawnedBall.rotation += (speed / BALL_CIRCUMFERENCE) * 360;
+            
+            spawnedBall.element.style.left = spawnedBall.x + 'px';
+            spawnedBall.element.style.top = spawnedBall.y + 'px';
+            spawnedBall.element.style.transform = `rotate(${spawnedBall.rotation}deg)`;
+        }
+    });
+    
+    handleCollisions();
+    
+    // Update force arrows and values
+    const gravityForce = updateArrow(gravityArrow, gravityLabelContainer, gravityLabel, gravityValue, x, y, gravity, 90, 'Gravity');
+    const frictionForce = updateArrow(frictionArrow, frictionLabelContainer, frictionLabel, frictionValue, x, y, groundFriction * (y + 50 >= window.innerHeight ? 1 : 0), 0, 'Ground Friction');
+    const airFrictionForce = updateArrow(airFrictionArrow, airFrictionLabelContainer, airFrictionLabel, airFrictionValue, x, y, airFriction * Math.sqrt(dx * dx + dy * dy), Math.atan2(-dy, -dx) * 180 / Math.PI, 'Air Friction');
+    const motionForceValue = Math.sqrt(dx * dx + dy * dy);
+    const motionForce = updateArrow(motionArrow, motionLabelContainer, motionLabel, motionValue, x, y, motionForceValue, Math.atan2(dy, dx) * 180 / Math.PI, 'Motion');
+    
     gravityValueElement.textContent = formatForceValue(gravityForce);
-    
-    let groundFrictionForce = 0;
-    if (y + 50 >= window.innerHeight && Math.abs(dx) > 0) {
-        const frictionAngle = dx > 0 ? 180 : 0;
-        const frictionMagnitude = Math.abs(dx * groundFriction);
-        groundFrictionForce = updateArrow(frictionArrow, frictionLabelContainer, frictionLabel, frictionValue,
-                                        x, y, frictionMagnitude, frictionAngle, 'Ground Friction');
-    } else {
-        frictionArrow.style.display = 'none';
-        frictionLabelContainer.style.display = 'none';
-        groundFrictionForce = 0;
-    }
-    frictionValueElement.textContent = formatForceValue(groundFrictionForce);
-    
-    const airFrictionMagnitude = Math.sqrt(dx * dx + dy * dy) * Math.abs(airFriction);
-    const airFrictionForce = updateArrow(airFrictionArrow, airFrictionLabelContainer, airFrictionLabel, airFrictionValue,
-                                       x, y, airFrictionMagnitude, Math.atan2(dy, dx) * 180 / Math.PI + 180, 'Air Friction');
+    frictionValueElement.textContent = formatForceValue(frictionForce);
     airFrictionValueElement.textContent = formatForceValue(airFrictionForce);
-    
-    const speed = Math.sqrt(dx * dx + dy * dy);
-    const motionForce = updateArrow(motionArrow, motionLabelContainer, motionLabel, motionValue,
-                                  x, y, speed, Math.atan2(dy, dx) * 180 / Math.PI, 'Motion');
     motionValueElement.textContent = formatForceValue(motionForce);
-
-    if (!isPaused) {
-        requestAnimationFrame(updateBallPosition);
-    }
+    
+    requestAnimationFrame(updateBallPosition);
 }
 
-pauseButton.addEventListener('click', () => {
-    isPaused = !isPaused;
-    pauseButton.textContent = isPaused ? 'Resume' : 'Pause';
-    if (!isPaused) {
-        requestAnimationFrame(updateBallPosition);
-    }
-});
-
 ball.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    ball.classList.add('dragging');
-    dragOffsetX = e.clientX - x;
-    dragOffsetY = e.clientY - y;
-    lastMouseX = e.clientX;
-    lastMouseY = e.clientY;
-    prevMouseX = e.clientX;
-    prevMouseY = e.clientX;
+    if (!isPaused) {
+        isDragging = true;
+        ball.classList.add('dragging');
+        const rect = ball.getBoundingClientRect();
+        dragOffsetX = e.clientX - rect.left;
+        dragOffsetY = e.clientY - rect.top;
+    }
 });
 
 window.addEventListener('mousemove', (e) => {
     if (isDragging) {
-        const newX = e.clientX - dragOffsetX;
-        const newY = e.clientY - dragOffsetY;
-        
-        dx = e.clientX - lastMouseX;
-        dy = e.clientY - lastMouseY;
-        
-        x = newX;
-        y = newY;
-
-        updateBallRotation();
-
         prevMouseX = lastMouseX;
         prevMouseY = lastMouseY;
         lastMouseX = e.clientX;
         lastMouseY = e.clientY;
+        
+        x = e.clientX - dragOffsetX;
+        y = e.clientY - dragOffsetY;
+        
+        ball.style.left = x + 'px';
+        ball.style.top = y + 'px';
+    }
+    if (currentDraggedBall) {
+        currentDraggedBall.prevMouseX = currentDraggedBall.lastMouseX;
+        currentDraggedBall.prevMouseY = currentDraggedBall.lastMouseY;
+        currentDraggedBall.lastMouseX = e.clientX;
+        currentDraggedBall.lastMouseY = e.clientY;
+        
+        currentDraggedBall.x = e.clientX - currentDraggedBall.dragOffsetX;
+        currentDraggedBall.y = e.clientY - currentDraggedBall.dragOffsetY;
+        
+        currentDraggedBall.element.style.left = currentDraggedBall.x + 'px';
+        currentDraggedBall.element.style.top = currentDraggedBall.y + 'px';
     }
 });
 
@@ -509,32 +732,49 @@ window.addEventListener('mouseup', (e) => {
     if (isDragging) {
         isDragging = false;
         ball.classList.remove('dragging');
-
+        
         dx = (lastMouseX - prevMouseX);
         dy = (lastMouseY - prevMouseY);
-
-        lastMouseX = 0;
-        lastMouseY = 0;
-        prevMouseX = 0;
-        prevMouseY = 0;
+    }
+    if (currentDraggedBall) {
+        currentDraggedBall.isDragging = false;
+        currentDraggedBall.element.classList.remove('dragging');
+        
+        currentDraggedBall.dx = (currentDraggedBall.lastMouseX - currentDraggedBall.prevMouseX);
+        currentDraggedBall.dy = (currentDraggedBall.lastMouseY - currentDraggedBall.prevMouseY);
+        currentDraggedBall = null;
     }
 });
 
-window.addEventListener("blur", () => {
-    if (isDragging) {
-        isDragging = false;
-        ball.classList.remove('dragging');
-        lastMouseX = 0;
-        lastMouseY = 0;
-        prevMouseX = 0;
-        prevMouseY = 0;
-    }
+pauseButton.addEventListener('click', () => {
+    isPaused = !isPaused;
+    pauseButton.textContent = isPaused ? 'Resume' : 'Pause';
 });
 
-ball.style.left = x + 'px';
-ball.style.top = y + 'px';
+spawnButton.addEventListener('click', () => {
+    createSpawnedBall();
+});
+
+resetButton.addEventListener('click', resetSimulation);
+
+window.addEventListener('resize', () => {
+    if (x + 50 > window.innerWidth) {
+        x = window.innerWidth - 50;
+    }
+    if (y + 50 > window.innerHeight) {
+        y = window.innerHeight - 50;
+    }
+    spawnedBalls.forEach(spawnedBall => {
+        if (spawnedBall.x + 50 > window.innerWidth) {
+            spawnedBall.x = window.innerWidth - 50;
+        }
+        if (spawnedBall.y + 50 > window.innerHeight) {
+            spawnedBall.y = window.innerHeight - 50;
+        }
+    });
+});
+
 updateBallPosition();
 </script>
-
 </body>
 </html>
