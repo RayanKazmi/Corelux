@@ -372,7 +372,7 @@ function handleBallCollision(ball1, ball2) {
     }
     return false;
 }
-
+  
 // Update this function to handle all collisions
 function handleAllCollisions() {
     // Check collision between main ball and purple balls
@@ -443,7 +443,7 @@ function updateBallPosition() {
 
     requestAnimationFrame(updateBallPosition);
 }
-
+  
 function checkCollision(ball1, ball2) {
     const dx = (ball2.x + BALL_RADIUS) - (ball1.x + BALL_RADIUS);
     const dy = (ball2.y + BALL_RADIUS) - (ball1.y + BALL_RADIUS);
