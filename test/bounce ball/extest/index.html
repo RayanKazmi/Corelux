@@ -375,11 +375,14 @@ function handleBallCollision(ball1, ball2) {
   
 // Update this function to handle all collisions
 function handleAllCollisions() {
-    // Check collision between main ball and purple balls
+    // Check collision between main ball (blue) and purple balls
     spawnedBalls.forEach(spawnedBall => {
         if (handleBallCollision({ x, y, dx, dy }, spawnedBall)) {
+            // Update blue ball position
             ball.style.left = x + 'px';
             ball.style.top = y + 'px';
+
+            // Update purple ball's position
             spawnedBall.element.style.left = spawnedBall.x + 'px';
             spawnedBall.element.style.top = spawnedBall.y + 'px';
         }
@@ -663,13 +666,13 @@ function createSpawnedBall() {
     spawnedBall.style.left = INITIAL_X + 'px';
     spawnedBall.style.top = INITIAL_Y + 'px';
     document.body.appendChild(spawnedBall);
-    
+
     const ballData = {
         element: spawnedBall,
         x: INITIAL_X,
         y: INITIAL_Y,
-        dx: dx * 1.2,
-        dy: dy * 1.2,
+        dx: 0, // Start with no speed
+        dy: 0, // Start with no speed
         rotation: 0,
         isDragging: false,
         dragOffsetX: 0,
@@ -693,7 +696,7 @@ function createSpawnedBall() {
         ballData.prevMouseY = e.clientY;
         currentDraggedBall = ballData;
     });
-    
+
     return ballData;
 }
 
