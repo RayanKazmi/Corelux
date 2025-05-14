@@ -333,6 +333,117 @@ let bounce = INITIAL_VALUES.bounce;
 const BALL_CIRCUMFERENCE = 50 * Math.PI;
 const BALL_RADIUS = 25;
 
+// Add this function to your script for handling ball collisions
+function handleBallCollision(ball1, ball2) {
+    const dx = ball2.x - ball1.x;
+    const dy = ball2.y - ball1.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance < BALL_DIAMETER) {
+        const angle = Math.atan2(dy, dx);
+        const sin = Math.sin(angle);
+        const cos = Math.cos(angle);
+
+        // Rotate velocities to simplify calculations
+        const v1 = { x: ball1.dx * cos + ball1.dy * sin, y: ball1.dy * cos - ball1.dx * sin };
+        const v2 = { x: ball2.dx * cos + ball2.dy * sin, y: ball2.dy * cos - ball2.dx * sin };
+
+        // Exchange velocities based on bounce factor
+        const v1Final = ((v1.x * (1 - bounce)) + (2 * bounce * v2.x)) / 2;
+        const v2Final = ((v2.x * (1 - bounce)) + (2 * bounce * v1.x)) / 2;
+
+        // Rotate velocities back
+        ball1.dx = v1Final * cos - v1.y * sin;
+        ball1.dy = v1.y * cos + v1Final * sin;
+        ball2.dx = v2Final * cos - v2.y * sin;
+        ball2.dy = v2.y * cos + v2Final * sin;
+
+        // Move overlapping balls apart
+        const overlap = BALL_DIAMETER - distance;
+        const moveX = (overlap * cos) / 2;
+        const moveY = (overlap * sin) / 2;
+
+        ball1.x -= moveX;
+        ball1.y -= moveY;
+        ball2.x += moveX;
+        ball2.y += moveY;
+
+        return true;
+    }
+    return false;
+}
+
+// Update this function to handle all collisions
+function handleAllCollisions() {
+    // Check collision between main ball and purple balls
+    spawnedBalls.forEach(spawnedBall => {
+        if (handleBallCollision({ x, y, dx, dy }, spawnedBall)) {
+            ball.style.left = x + 'px';
+            ball.style.top = y + 'px';
+            spawnedBall.element.style.left = spawnedBall.x + 'px';
+            spawnedBall.element.style.top = spawnedBall.y + 'px';
+        }
+    });
+
+    // Check collisions between purple balls
+    for (let i = 0; i < spawnedBalls.length; i++) {
+        for (let j = i + 1; j < spawnedBalls.length; j++) {
+            if (handleBallCollision(spawnedBalls[i], spawnedBalls[j])) {
+                spawnedBalls[i].element.style.left = spawnedBalls[i].x + 'px';
+                spawnedBalls[i].element.style.top = spawnedBalls[i].y + 'px';
+                spawnedBalls[j].element.style.left = spawnedBalls[j].x + 'px';
+                spawnedBalls[j].element.style.top = spawnedBalls[j].y + 'px';
+            }
+        }
+    }
+}
+
+// Update the updateBallPosition function to include handleAllCollisions
+function updateBallPosition() {
+    if (!isPaused) {
+        // Apply forces and update main ball's position
+        if (!isDragging) {
+            dy += gravity;
+            dx *= (1 - airFriction); dy *= (1 - airFriction);
+
+            if (y + BALL_DIAMETER >= window.innerHeight) {
+                dx *= (1 - groundFriction); dy = -dy * bounce;
+                y = Math.min(y, window.innerHeight - BALL_DIAMETER);
+            }
+
+            x += dx; y += dy;
+
+            if (x + BALL_DIAMETER > window.innerWidth || x < 0) {
+                dx = -dx * bounce;
+                x = Math.max(0, Math.min(x, window.innerWidth - BALL_DIAMETER));
+            }
+        }
+
+        ball.style.left = x + 'px';
+        ball.style.top = y + 'px';
+
+        // Update purple balls
+        spawnedBalls.forEach(ball => {
+            ball.dy += gravity;
+            ball.dx *= (1 - airFriction); ball.dy *= (1 - airFriction);
+
+            ball.x += ball.dx; ball.y += ball.dy;
+
+            if (ball.y + BALL_DIAMETER >= window.innerHeight) {
+                ball.dy = -ball.dy * bounce;
+                ball.dx *= (1 - groundFriction);
+                ball.y = Math.min(ball.y, window.innerHeight - BALL_DIAMETER);
+            }
+            ball.element.style.left = ball.x + 'px';
+            ball.element.style.top = ball.y + 'px';
+        });
+
+        handleAllCollisions();
+    }
+
+    requestAnimationFrame(updateBallPosition);
+}
+
 function checkCollision(ball1, ball2) {
     const dx = (ball2.x + BALL_RADIUS) - (ball1.x + BALL_RADIUS);
     const dy = (ball2.y + BALL_RADIUS) - (ball1.y + BALL_RADIUS);
